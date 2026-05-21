@@ -1,0 +1,15 @@
+.header {
+  background-color: var(--dark-surface);
+  height: 72px;
+  padding: 0 var(--margin);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+.userProfile { display: flex; align-items: center; gap: var(--md); cursor: pointer; transition: opacity 0.2s; }
+.userProfile:hover { opacity: 0.8; }
+.greeting { font-size: 14px; font-weight: 700; color: #fff; }
+.avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--dark-canvas); }

@@ -1,0 +1,2 @@
+.layoutWrapper { display: flex; height: 100vh; overflow: hidden; background-color: var(--dark-canvas); }
+.mainArea { flex: 1; display: flex; flex-direction: column; overflow-y: auto; background-color: var(--dark-canvas); }
