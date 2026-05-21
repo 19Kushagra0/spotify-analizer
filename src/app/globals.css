@@ -1,0 +1,43 @@
+/* Fonts loaded via <link> tags in layout.js */
+
+:root {
+  --bg-main: #121212;
+  --primary-container: #1ed760;
+  --surface-tint: #34e36a;
+  --text-base: #ffffff;
+  --text-muted: #b3b3b3;
+  --surface-mockup: #181818;
+  --mid-dark: #1f1f1f;
+  --border-muted: rgba(77, 77, 77, 0.2);
+  --warning: #ffa42b;
+  --announcement: #539df5;
+  --surface-container-low: #151e15;
+  --surface-bright: #333b32;
+  --dark-canvas: #121212;
+  --dark-surface: #181818;
+  --margin: 24px;
+  --md: 16px;
+  --card-radius: 8px;
+  --sidebar-width: 220px;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-base);
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Material Icons Setup */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Custom Text Selection */
+::selection {
+  background-color: var(--primary-container);
+  color: #000;
+}
