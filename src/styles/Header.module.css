@@ -1,15 +1,39 @@
 .header {
   background-color: var(--dark-surface);
   height: 72px;
+  min-height: 72px;
+  flex-shrink: 0;
   padding: 0 var(--margin);
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   position: sticky;
   top: 0;
   z-index: 20;
 }
+
+/* Hamburger — only visible on mobile */
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+.hamburger:hover { background-color: rgba(255, 255, 255, 0.08); }
+
+@media (max-width: 767px) {
+  .hamburger { display: flex; align-items: center; justify-content: center; }
+}
+
 .userProfile { display: flex; align-items: center; gap: var(--md); cursor: pointer; transition: opacity 0.2s; }
 .userProfile:hover { opacity: 0.8; }
 .greeting { font-size: 14px; font-weight: 700; color: #fff; }
 .avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--dark-canvas); }
+
+/* Hide greeting text on very small screens */
+@media (max-width: 480px) {
+  .greeting { display: none; }
+}

@@ -6,18 +6,18 @@
 /* Row 1: Now Playing */
 .nowPlaying { display: flex; align-items: center; gap: var(--md); }
 .albumArt { width: 56px; height: 56px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
-.trackInfo { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
-.trackHeader { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px; }
-.trackTitle { font-size: 16px; font-weight: 700; margin: 0; line-height: 1.2; }
+.trackInfo { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+.trackHeader { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px; gap: 8px; }
+.trackTitle { font-size: 16px; font-weight: 700; margin: 0; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .trackArtist { font-size: 14px; color: #b3b3b3; margin: 0; }
-.time { font-size: 12px; color: #b3b3b3; }
+.time { font-size: 12px; color: #b3b3b3; white-space: nowrap; flex-shrink: 0; }
 .progressBarBg { width: 100%; background-color: #4d4d4d; height: 4px; border-radius: 9999px; overflow: hidden; margin-bottom: 4px; }
 .progressBarFill { background-color: var(--primary-container); height: 100%; width: 78%; border-radius: 9999px; box-shadow: 0 0 8px rgba(30, 215, 96, 0.4); }
 .aiCaption { font-size: 12px; font-style: italic; color: #b3b3b3; margin: 4px 0 0 0; }
 
 /* Row 2: Stats */
-.statsGrid { display: grid; grid-template-columns: repeat(1, 1fr); gap: var(--margin); }
-@media (min-width: 768px) { .statsGrid { grid-template-columns: repeat(3, 1fr); } }
+.statsGrid { display: grid; grid-template-columns: repeat(1, 1fr); gap: var(--md); }
+@media (min-width: 480px) { .statsGrid { grid-template-columns: repeat(3, 1fr); gap: var(--margin); } }
 .statCard { display: flex; flex-direction: column; justify-content: center; gap: 4px; }
 .statLabel { font-size: 10px; font-weight: 600; text-transform: uppercase; color: #b3b3b3; letter-spacing: 1px; }
 .statValue { font-size: 24px; font-weight: 700; color: #fff; margin: 0; }
@@ -33,5 +33,12 @@
 .barBg { width: 8px; background-color: #4d4d4d; border-radius: 9999px 9999px 0 0; transition: background-color 0.2s; }
 .barBg:hover { background-color: var(--primary-container); cursor: pointer; }
 .barActive { width: 8px; background-color: var(--primary-container); border-radius: 9999px 9999px 0 0; box-shadow: 0 0 8px rgba(30,215,96,0.3); }
-.dayLabel { font-size: 10px; color: #b3b3b3; }
-.dayLabelActive { font-size: 10px; color: #fff; }
+.dayLabel { font-size: 11px; color: #b3b3b3; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.dayLabelActive { font-size: 11px; color: #fff; background-color: rgba(255, 255, 255, 0.15); width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+
+/* Mobile tweaks */
+@media (max-width: 767px) {
+  .pageContainer { padding: 16px; gap: 16px; }
+  .cardLg { padding: 16px; }
+  .statValue, .statValuePrimary { font-size: 20px; }
+}

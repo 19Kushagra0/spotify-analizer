@@ -1,8 +1,16 @@
-import styles from '@/styles/Header.module.css';
+'use client';
 
-export default function Header() {
+import styles from '@/styles/Header.module.css';
+import { Menu } from 'lucide-react';
+
+export default function Header({ onMenuClick }) {
   return (
     <header className={styles.header}>
+      {/* Hamburger — only visible on mobile */}
+      <button className={styles.hamburger} onClick={onMenuClick} aria-label="Open menu">
+        <Menu size={22} color="#fff" />
+      </button>
+
       <div className={styles.userProfile}>
         <span className={styles.greeting}>Welcome back, Alex</span>
         <img 

@@ -1,17 +1,14 @@
+'use client';
+
+import { useState } from 'react';
 import { Send } from 'lucide-react';
 import styles from '@/styles/Studio.module.css';
 
 export default function AIStudioPage() {
+  const [activeMood, setActiveMood] = useState("Focus");
   
   // Dummy Data
-  const moodPills = [
-    { name: "Focus", active: true },
-    { name: "Heartbreak", active: false },
-    { name: "Hype", active: false },
-    { name: "Road Trip", active: false },
-    { name: "Sleep", active: false },
-    { name: "Party", active: false }
-  ];
+  const moodPills = ["Focus", "Heartbreak", "Hype", "Road Trip", "Sleep", "Party"];
 
   const generatedTracks = [
     { name: "Nightcall", artist: "Kavinsky", badge: "synth mood", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBDUu_bhZX6ESQk6uN5Pzik6Fcz6mBndLi0inkW5wrLpjTMHY1_gpjGlEkNTmPeuThPSCY4N9J_ZRYxk56-drwk7VAbIxGJe80mLlV6elfqOf9VemdHQdl1p6TR-fCoe3UDeT2eFm3bugD6swOcVrjAb9Opv5Sstdg12RdvFpzc1K70JgudgJxP0vir2kg3acv5c7vkA09HzDKJJaE-syvrnLtJdb2C-SU2CvzAsSmYwzEUow73Ipw0Yj7xI5DPNrb2BI5Wvs7FCFDI" },
@@ -21,7 +18,9 @@ export default function AIStudioPage() {
     { name: "Tick of the Clock", artist: "Chromatics", badge: "driving", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCYZ7rJXS1MG8rohs7CpuQ4NOurFNCyv4dptvbYg6kSGgsI3PzHVBIHfnpT9G4sWSsRHmZf_NmZIGGFQe6gdG7rwgkX4JR6_iD28FoMtM_cehNiKNw_yOnddoqKJCsDW2DP4eQ2hpIRpnYao1oRFTFrCwEU1rMtJ843QFWPnnF6j9fXDmur0qMzlGB7s9-fgZsHvsG8gcOH9d9ZTnYYQj3-J-B6FYVhRvbvet2X6joY6pmtNotx2gU-QIl-sSiciTiZC1CnCljhviWA" },
     { name: "Midnight City", artist: "M83", badge: "popular", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBZTICSL5Tf1g14nV20lKRyyAtk1SzC59V78jH86ZY18-25qJBppMOuF96VSWe8w3aKlqRP0eSAI8zWqhem3kup6MUaudW2h7UftUCwCG-EkzpO-mD-_QLeUAi9cwyxqrLB1u1zvm0oYbusAPHB5bQoKZGfhR8BQtm1IyRVjUJSvKvKhyBkLNw_YTjYsoqHrFUnRdSk385PiUQH3IMPd_Mro5-MKmsyvZWbNBOlZq8OwCVjyqxPu5PDQ_TIa5TBXLdcAWbv0HbdKTwJ" },
     { name: "After Dark", artist: "Mr. Kitty", badge: "mood", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCmUTR3zbSnTY9f2qxM5S0QuT5RGk5SHCT5jtmimpkMBfIUNA8tROp8yP0E10nVqI_mXYn1q8EHGaZiQUjkYWiTDNNdDkZpAfVor73qshbYBqfsk-VQfXzBF68dPzIU8WXVaK9NO5Uqd_xdlGb9vl5PMfvyqOds7Rtsj1hBfRd9V6BrXeU_mMfhqbcE5kDqwBwwnf54Lgqd7hnp8sk7hngic5En5M7DZExy2zYJ_7jCcEvAXHv4hJBtEXf-UBIJ839X4bnZPGApK3zm" },
-    { name: "Starboy", artist: "The Weeknd, Daft Punk", badge: "discovery", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuD6UFlcSyOEze2R7fxeIMKRzLa1laL1kKyKMgY2cbMzKNuRXZjs3d-uShfsy00oCtDivmbMyIbl4qkjQbuEoA59JnSs0VRdNrlmWG6HV3EiZFH5BzzgF49Zs0V4Ms2tQ2tbh2lYPjqFqNAawNl7SHzRshQQcvIfpXPZarybfmCpqOfp9ccZuAfd5KJpgVAh72pmBtRrz-d2dkpYMOVjfGlhkD8Pc9JpAHBW2Ju806WNHhFeoYvXpJbLT63RtaBNzEK2EWQ9ZrWWpQMM" }
+    { name: "Starboy", artist: "The Weeknd, Daft Punk", badge: "discovery", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuD6UFlcSyOEze2R7fxeIMKRzLa1laL1kKyKMgY2cbMzKNuRXZjs3d-uShfsy00oCtDivmbMyIbl4qkjQbuEoA59JnSs0VRdNrlmWG6HV3EiZFH5BzzgF49Zs0V4Ms2tQ2tbh2lYPjqFqNAawNl7SHzRshQQcvIfpXPZarybfmCpqOfp9ccZuAfd5KJpgVAh72pmBtRrz-d2dkpYMOVjfGlhkD8Pc9JpAHBW2Ju806WNHhFeoYvXpJbLT63RtaBNzEK2EWQ9ZrWWpQMM" },
+    { name: "Odd Look", artist: "Kavinsky, The Weeknd", badge: "similar", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBDUu_bhZX6ESQk6uN5Pzik6Fcz6mBndLi0inkW5wrLpjTMHY1_gpjGlEkNTmPeuThPSCY4N9J_ZRYxk56-drwk7VAbIxGJe80mLlV6elfqOf9VemdHQdl1p6TR-fCoe3UDeT2eFm3bugD6swOcVrjAb9Opv5Sstdg12RdvFpzc1K70JgudgJxP0vir2kg3acv5c7vkA09HzDKJJaE-syvrnLtJdb2C-SU2CvzAsSmYwzEUow73Ipw0Yj7xI5DPNrb2BI5Wvs7FCFDI" },
+    { name: "Dust", artist: "M-O-O-N", badge: "driving", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuC6drVs8M5dNcyoo7_8OxHyqh-Xe8sYI6C4V0Zzcv90EBZgEBLNS8BPnj1TAbPuPBBBp4fB0giFQzWv0n4h1j81IHj3WcL8lsXkb1XhqRLdwO5VDDHtZ4wSoJHVZzTbJAJDdm7DaIUtKGW-a7oY4cRFQEE4btflGBvpOfjqpVwNKWQfvNERJSQOIdtAgbi9zqwPo5X284j_3I-oUz_mB7J5cFLmzNqZEHU0Ut__a6IiGelaYWBb0RNZEzGX2mcpvCBij38ZNUbjS8fz" }
   ];
 
   const recentTags = ["Workout Flow", "Deep Focus", "Sunday Chill"];
@@ -46,9 +45,10 @@ export default function AIStudioPage() {
             {moodPills.map((pill, idx) => (
               <button 
                 key={idx} 
-                className={`${styles.pill} ${pill.active ? styles.pillActive : styles.pillInactive}`}
+                className={`${styles.pill} ${pill === activeMood ? styles.pillActive : styles.pillInactive}`}
+                onClick={() => setActiveMood(pill)}
               >
-                {pill.name}
+                {pill}
               </button>
             ))}
           </div>
@@ -60,6 +60,18 @@ export default function AIStudioPage() {
             </div>
             <div className={styles.bubbleAi}>
               I've curated a selection of atmospheric electronic and synthwave tracks with a melancholic edge. Perfect for urban rain.
+            </div>
+            <div className={styles.bubbleUser}>
+              Can we make it a bit more upbeat? Not too energetic, but something to keep me awake.
+            </div>
+            <div className={styles.bubbleAi}>
+              Absolutely. I've swapped in some driving synthwave with stronger basslines and a slightly faster tempo. It maintains the midnight atmosphere but adds more momentum.
+            </div>
+            <div className={styles.bubbleUser}>
+              Perfect, that's exactly what I needed. Add some Kavinsky if you haven't already.
+            </div>
+            <div className={styles.bubbleAi}>
+              I've added "Nightcall" and "Odd Look" by Kavinsky to the top of your queue.
             </div>
           </div>
 
