@@ -22,18 +22,115 @@
   border-radius: 6px;
   transition: background-color 0.2s;
 }
-.hamburger:hover { background-color: rgba(255, 255, 255, 0.08); }
 
-@media (max-width: 767px) {
-  .hamburger { display: flex; align-items: center; justify-content: center; }
+.hamburger:hover {
+  background-color: rgba(255, 255, 255, 0.08);
 }
 
-.userProfile { display: flex; align-items: center; gap: var(--md); cursor: pointer; transition: opacity 0.2s; }
-.userProfile:hover { opacity: 0.8; }
-.greeting { font-size: 14px; font-weight: 700; color: #fff; }
-.avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--dark-canvas); }
+@media (max-width: 767px) {
+  .hamburger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* Wrapper keeps dropdown anchored to the avatar */
+.profileWrapper {
+  position: relative;
+  margin-left: auto;
+}
+
+.userProfile {
+  display: flex;
+  align-items: center;
+  gap: var(--md);
+  cursor: pointer;
+  transition: opacity 0.2s;
+  user-select: none;
+}
+
+.userProfile:hover {
+  opacity: 0.8;
+}
+
+/* Dropdown card */
+.dropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  min-width: 180px;
+  background: #282828;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  z-index: 100;
+  animation: dropIn 0.15s ease;
+}
+
+@keyframes dropIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 18px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.15s;
+  letter-spacing: 0.01em;
+}
+
+.dropdownItem:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #1ed760;
+}
+
+.dropdownIcon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: inherit;
+}
+
+/* Ring glow on avatar when menu is open */
+.avatarActive {
+  border-color: #1ed760 !important;
+  box-shadow: 0 0 0 2px rgba(30, 215, 96, 0.4);
+}
+
+.greeting {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--dark-canvas);
+}
 
 /* Hide greeting text on very small screens */
 @media (max-width: 480px) {
-  .greeting { display: none; }
+  .greeting {
+    display: none;
+  }
 }

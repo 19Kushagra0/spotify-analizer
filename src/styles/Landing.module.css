@@ -185,8 +185,23 @@
   opacity: 0.8;
 }
 
-.radarLabelTop { position: absolute; top: 0; font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
-.radarLabelBottom { position: absolute; bottom: 0; font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.radarLabelTop {
+  position: absolute;
+  top: 0;
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.radarLabelBottom {
+  position: absolute;
+  bottom: 0;
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
 
 .statPills {
   display: flex;
@@ -204,10 +219,31 @@
   border: 1px solid #2a2a2a;
 }
 
-.pillText { font-size: 12px; font-weight: 700; }
-.pillDotWarning { width: 8px; height: 8px; border-radius: 50%; background-color: var(--warning); }
-.pillDotAnnounce { width: 8px; height: 8px; border-radius: 50%; background-color: var(--announcement); }
-.pillDotPrimary { width: 8px; height: 8px; border-radius: 50%; background-color: var(--primary-container); }
+.pillText {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.pillDotWarning {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--warning);
+}
+
+.pillDotAnnounce {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--announcement);
+}
+
+.pillDotPrimary {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--primary-container);
+}
 
 .nowPlaying {
   background-color: var(--surface-container-low);
@@ -234,7 +270,27 @@
   min-width: 0;
 }
 
-.npTitle { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.npArtist { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.playIcon { cursor: pointer; transition: color 0.3s ease; }
-.playIcon:hover { color: var(--primary-container); }
+.npTitle {
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.npArtist {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playIcon {
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.playIcon:hover {
+  color: var(--primary-container);
+}
