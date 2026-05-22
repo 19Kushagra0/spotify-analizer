@@ -32,3 +32,18 @@ export async function getRecentlyPlayed(accessToken) {
   if (!response.ok) throw new Error("Failed to fetch recently played");
   return response.json();
 }
+
+// 4. Fetch Audio Features (The Math behind the music!)
+export async function getAudioFeatures(accessToken, trackIdsArray) {
+  // Spotify requires the IDs to be a single comma-separated string
+  const idsString = trackIdsArray.join(',');
+
+  const response = await fetch(`https://api.spotify.com/v1/audio-features?ids=${idsString}`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) throw new Error("Failed to fetch audio features");
+  return response.json();
+}
