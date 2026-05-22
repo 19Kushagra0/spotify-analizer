@@ -60,3 +60,26 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #666;
 }
+
+/* Remove default browser focus outline on SVGs and Recharts elements when clicked */
+svg:focus,
+g:focus,
+path:focus,
+rect:focus,
+circle:focus,
+text:focus,
+.recharts-wrapper:focus,
+.recharts-responsive-container:focus,
+svg *:focus,
+svg *:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Day labels hover circle styling */
+.chart-day-label circle {
+  fill: transparent;
+}
+.chart-day-label:hover circle {
+  fill: rgba(255, 255, 255, 0.08);
+}
