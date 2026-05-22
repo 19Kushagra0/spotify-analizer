@@ -1,6 +1,115 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import styles from '@/styles/Analytics.module.css';
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, CartesianGrid } from 'recharts';
+import { getTopTracks, getTopArtists, getRecentlyPlayed } from '@/lib/spotify';
+
+const formatGenre = (genre) =>
+  genre
+    ?.split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
 
 export default function AnalyticsPage() {
+  const { data: session, status } = useSession();
+  const [realTopTracks, setRealTopTracks] = useState(null);
+  const [isLoadingTracks, setIsLoadingTracks] = useState(true);
+  const [realTopArtists, setRealTopArtists] = useState(null);
+  const [isLoadingArtists, setIsLoadingArtists] = useState(true);
+  const [realRadarData, setRealRadarData] = useState(null);
+  const [isLoadingRadar, setIsLoadingRadar] = useState(true);
+  const [radarError, setRadarError] = useState(false);
+  const [realListeningBars, setRealListeningBars] = useState(null);
+  const [isLoadingListening, setIsLoadingListening] = useState(true);
+
+  useEffect(() => {
+    if (session?.accessToken) {
+      async function fetchData() {
+        try {
+          const results = await Promise.allSettled([
+            getTopTracks(session.accessToken, 50),
+            getTopArtists(session.accessToken, 50),
+            getRecentlyPlayed(session.accessToken)
+          ]);
+
+          const tracksData = results[0].status === 'fulfilled' ? results[0].value : null;
+          const artistsData = results[1].status === 'fulfilled' ? results[1].value : null;
+          const recentlyPlayedData = results[2].status === 'fulfilled' ? results[2].value : null;
+
+          if (tracksData?.items) {
+            setRealTopTracks(tracksData.items);
+          }
+          if (artistsData?.items) {
+            setRealTopArtists(artistsData.items);
+
+            const genreCounts = {};
+            artistsData.items.forEach(artist => {
+              if (artist.genres) {
+                artist.genres.forEach(genre => {
+                  const formatted = formatGenre(genre);
+                  genreCounts[formatted] = (genreCounts[formatted] || 0) + 1;
+                });
+              }
+            });
+
+            const sortedGenres = Object.entries(genreCounts)
+              .sort((a, b) => b[1] - a[1])
+              .slice(0, 6);
+
+            if (sortedGenres.length > 0) {
+              const maxCount = sortedGenres[0][1];
+              const radarData = sortedGenres.map(([genre, count]) => ({
+                subject: genre,
+                value: Math.round((count / maxCount) * 100)
+              }));
+
+              while (radarData.length < 6) {
+                radarData.push({ subject: '-', value: 0 });
+              }
+              setRealRadarData(radarData);
+            } else {
+              setRadarError(true);
+            }
+          }
+
+          if (recentlyPlayedData?.items) {
+            const counts = new Array(24).fill(0);
+            recentlyPlayedData.items.forEach(item => {
+              if (item.played_at) {
+                const date = new Date(item.played_at);
+                const hour = date.getHours(); // Local hour 0-23
+                counts[hour] += 1;
+              }
+            });
+
+            const maxCount = Math.max(...counts);
+            if (maxCount > 0) {
+              const scaledBars = counts.map(count =>
+                Math.round((count / maxCount) * 100)
+              );
+              setRealListeningBars(scaledBars);
+            }
+          }
+        } catch (e) {
+          console.error("Error fetching data:", e);
+        } finally {
+          setIsLoadingTracks(false);
+          setIsLoadingArtists(false);
+          setIsLoadingRadar(false);
+          setIsLoadingListening(false);
+        }
+      }
+      fetchData();
+    } else if (status !== 'loading') {
+      setIsLoadingTracks(false);
+      setIsLoadingArtists(false);
+      setIsLoadingRadar(false);
+      setIsLoadingListening(false);
+    }
+  }, [session, status]);
+
   // Dummy Data Arrays (Ready for Spotify API later)
   const topTracks = [
     { name: "Midnight City", artist: "M83", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAukpnTOo3C7bUVlsyirPp3DhQ01oHG9vEmvtHK8-tGbB0dlOhQXpbRquYeapUIyUpYfNgcf-9UE4K5pFN7abMSd5VYHpFJAod7E59OdtAtR1ZoB4SR2lD_klPUROM91EvMTtoGYQoY2OezDNkT2_qwksbKZCKcw3Q5Zt-t-7VnsJmsP7Z5EjL5wrXV83xjHnQPRUNz-qRNQEcC-hfDLCsyBGuXDl90TQt0Ja4EpWFOtX_HgataZhMDJjqlq2v12I1Em3K7NwpkOY0s", score: "100%" },
@@ -25,57 +134,85 @@ export default function AnalyticsPage() {
 
   const listeningBars = [10, 5, 5, 10, 15, 20, 35, 55, 80, 95, 85, 65, 45, 30, 40, 50, 70, 100, 90, 75, 60, 40, 30, 20];
 
+  const formatHour = (hour) => {
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour % 12 === 0 ? 12 : hour % 12;
+    return `${displayHour} ${ampm}`;
+  };
+
+  const chartData = (realListeningBars || listeningBars).map((height, i) => ({
+    hour: formatHour(i),
+    value: height
+  }));
+
   return (
     <div className={styles.pageContainer}>
-      
+
       {/* Header */}
       <header className={styles.header}>
         <h1 className={styles.pageTitle}>Your Music DNA</h1>
-        <p className={styles.pageSubtitle}>Based on your top 50 tracks this month</p>
+        <p className={styles.pageSubtitle}>Based on your top 50 artists this month</p>
       </header>
 
       {/* Section 1: 2 Cols */}
       <div className={styles.topGrid}>
-        
+
         {/* Left Col: Radar Chart */}
         <div className={styles.card}>
           <div className={styles.radarWrapper}>
             <div className={styles.radarContainer}>
-              <svg className={styles.radarSvg} viewBox="0 0 200 200">
-                {/* Background Grid */}
-                <polygon fill="none" stroke="#4d4d4d" strokeWidth="1" points="100,20 169.28,60 169.28,140 100,180 30.72,140 30.72,60" />
-                <polygon fill="none" stroke="#4d4d4d" strokeWidth="1" points="100,40 151.96,70 151.96,130 100,160 48.04,130 48.04,70" />
-                <polygon fill="none" stroke="#4d4d4d" strokeWidth="1" points="100,60 134.64,80 134.64,120 100,140 65.36,120 65.36,80" />
-                {/* Axes */}
-                <line stroke="#4d4d4d" strokeWidth="1" x1="100" y1="100" x2="100" y2="20" />
-                <line stroke="#4d4d4d" strokeWidth="1" x1="100" y1="100" x2="169.28" y2="60" />
-                <line stroke="#4d4d4d" strokeWidth="1" x1="100" y1="100" x2="169.28" y2="140" />
-                <line stroke="#4d4d4d" strokeWidth="1" x1="100" y1="100" x2="100" y2="180" />
-                <line stroke="#4d4d4d" strokeWidth="1" x1="100" y1="100" x2="30.72" y2="140" />
-                <line stroke="#4d4d4d" strokeWidth="1" x1="100" y1="100" x2="30.72" y2="60" />
-                {/* Data Polygon */}
-                <polygon fill="rgba(30, 215, 96, 0.15)" stroke="#1ed760" strokeWidth="2" points="100,30 155,65 140,135 100,150 45,120 60,70" />
-                {/* Data Points */}
-                <circle cx="100" cy="30" r="3" fill="#1ed760" />
-                <circle cx="155" cy="65" r="3" fill="#1ed760" />
-                <circle cx="140" cy="135" r="3" fill="#1ed760" />
-                <circle cx="100" cy="150" r="3" fill="#1ed760" />
-                <circle cx="45" cy="120" r="3" fill="#1ed760" />
-                <circle cx="60" cy="70" r="3" fill="#1ed760" />
-                {/* Labels */}
-                <text x="100" y="10" fill="#b3b3b3" fontSize="10" fontFamily="Plus Jakarta Sans" textAnchor="middle">Energy</text>
-                <text x="180" y="55" fill="#b3b3b3" fontSize="10" fontFamily="Plus Jakarta Sans" textAnchor="middle">Danceability</text>
-                <text x="180" y="150" fill="#b3b3b3" fontSize="10" fontFamily="Plus Jakarta Sans" textAnchor="middle">Acousticness</text>
-                <text x="100" y="195" fill="#b3b3b3" fontSize="10" fontFamily="Plus Jakarta Sans" textAnchor="middle">Valence</text>
-                <text x="20" y="150" fill="#b3b3b3" fontSize="10" fontFamily="Plus Jakarta Sans" textAnchor="middle">Tempo</text>
-                <text x="20" y="55" fill="#b3b3b3" fontSize="10" fontFamily="Plus Jakarta Sans" textAnchor="middle">Instrumentalness</text>
-              </svg>
+              {isLoadingRadar ? (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: '250px', color: '#b3b3b3', fontSize: '14px' }}>
+                  Loading music DNA...
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" aspect={1.2}>
+                  <RadarChart cx="50%" cy="50%" outerRadius="65%" data={radarError || !realRadarData ? [
+                    { subject: 'Genre 1', value: 0 },
+                    { subject: 'Genre 2', value: 0 },
+                    { subject: 'Genre 3', value: 0 },
+                    { subject: 'Genre 4', value: 0 },
+                    { subject: 'Genre 5', value: 0 },
+                    { subject: 'Genre 6', value: 0 }
+                  ] : realRadarData}>
+                    <PolarGrid stroke="#4d4d4d" strokeWidth={1} />
+                    <PolarAngleAxis dataKey="subject" tick={{ fill: '#b3b3b3', fontSize: 11, fontFamily: 'var(--font-jakarta, "Plus Jakarta Sans", sans-serif)' }} />
+                    <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: '#282828', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '12px' }}
+                      itemStyle={{ color: '#1ed760' }}
+                    />
+                    <Radar
+                      name="Music DNA"
+                      dataKey="value"
+                      stroke="#1ed760"
+                      strokeWidth={2}
+                      fill="#1ed760"
+                      fillOpacity={0.25}
+                      activeDot={{ r: 6, fill: '#1ed760', stroke: '#fff', strokeWidth: 2 }}
+                      dot={{ r: 4, fill: '#1ed760', strokeWidth: 0 }}
+                      isAnimationActive={true}
+                      animationBegin={0}
+                      animationDuration={1500}
+                      animationEasing="ease-out"
+                    />
+                  </RadarChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </div>
           <div>
             <div className={styles.aiLabel}>AI INTERPRETATION</div>
             <p className={styles.aiText}>
-              <span style={{ fontStyle: 'italic', color: '#fff' }}>Your recent listening heavily favors high-energy, electronic-driven compositions.</span> There is a distinct lack of acoustic elements, suggesting a preference for synthetic textures. The overall mood tends slightly towards melancholic, despite the upbeat tempos.
+              {realRadarData && realRadarData[0]?.subject !== 'Genre 1' ? (
+                <>
+                  <span style={{ fontStyle: 'italic', color: '#fff' }}>Your genre profile is heavily anchored by {realRadarData[0].subject}.</span> The unique distribution across these styles highlights the core aesthetic that defines your current listening habits.
+                </>
+              ) : (
+                <>
+                  <span style={{ fontStyle: 'italic', color: '#fff' }}>Your genre profile reflects a unique blend of musical styles.</span> The distribution across these top genres highlights the core aesthetic that defines your current listening habits.
+                </>
+              )}
             </p>
           </div>
         </div>
@@ -84,19 +221,35 @@ export default function AnalyticsPage() {
         <div>
           <h2 className={styles.sectionTitle}>Top Tracks</h2>
           <div className={styles.trackList}>
-            {topTracks.map((track, i) => (
-              <div key={i} className={`${styles.trackRow} ${i % 2 === 0 ? styles.rowEven : styles.rowOdd}`}>
-                <div className={styles.trackRank}>{i + 1}</div>
-                <img src={track.img} alt="Album Art" className={styles.trackImg} />
-                <div className={styles.trackInfo}>
-                  <div className={styles.trackName}>{track.name}</div>
-                  <div className={styles.trackArtist}>{track.artist}</div>
-                </div>
-                <div className={styles.trackBarBg}>
-                  <div className={styles.trackBarFill} style={{ width: track.score }}></div>
-                </div>
+            {isLoadingTracks ? (
+              <div style={{ color: '#b3b3b3', padding: '20px 0', fontSize: '14px', textAlign: 'center' }}>Loading top tracks...</div>
+            ) : (realTopTracks || topTracks).length === 0 ? (
+              <div style={{ color: '#b3b3b3', padding: '40px 0', fontSize: '14px', width: '100%', textAlign: 'center', fontStyle: 'italic' }}>
+                Spend more time on Spotify to get top tracks.
               </div>
-            ))}
+            ) : (realTopTracks || topTracks).slice(0, 10).map((track, i) => {
+              const name = track.name;
+              const artist = track.artists ? track.artists[0]?.name : track.artist;
+              const img = track.album?.images[0]?.url || track.img || "https://i.scdn.co/image/ab6761610000e5eb55d39ab9c21d506aa52f7021";
+              const score = track.popularity !== undefined ? `${track.popularity}%` : track.score;
+
+              return (
+                <div key={i} className={`${styles.trackRow} ${i % 2 === 0 ? styles.rowEven : styles.rowOdd}`} style={{ transition: 'all 0.2s ease' }} onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'} onMouseOut={(e) => e.currentTarget.style.backgroundColor = ''}>
+                  <div className={styles.trackRank}>{i + 1}</div>
+                  <img src={img} alt="Album Art" className={styles.trackImg} />
+                  <div className={styles.trackInfo} style={{ minWidth: 0, flex: 1, marginRight: '16px' }}>
+                    <div className={styles.trackName} style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{name}</div>
+                    <div className={styles.trackArtist} style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{artist}</div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div className={styles.trackBarBg}>
+                      <div className={styles.trackBarFill} style={{ width: score }}></div>
+                    </div>
+                    <span style={{ fontSize: '11px', color: '#b3b3b3', width: '30px', textAlign: 'right', fontWeight: '600' }}>{score}</span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -106,37 +259,94 @@ export default function AnalyticsPage() {
       <div className={styles.artistsSection}>
         <h2 className={styles.sectionTitle}>Top Artists</h2>
         <div className={styles.artistsScroll}>
-          {topArtists.map((artist, i) => (
-            <div key={i} className={styles.artistCard}>
-              <img src={artist.img} alt="Artist" className={styles.artistImg} />
-              <div className={styles.artistName}>{artist.name}</div>
-              <div className={styles.artistGenre}>{artist.genre}</div>
+          {isLoadingArtists ? (
+            <div style={{ color: '#b3b3b3', padding: '20px 0', fontSize: '14px', width: '100%', textAlign: 'center' }}>Loading top artists...</div>
+          ) : (realTopArtists || topArtists).length === 0 ? (
+            <div style={{ color: '#b3b3b3', padding: '40px 0', fontSize: '14px', width: '100%', textAlign: 'center', fontStyle: 'italic' }}>
+              Spend more time on Spotify to get top artists.
             </div>
-          ))}
+          ) : (realTopArtists || topArtists).slice(0, 10).map((artist, i) => {
+            const name = artist.name;
+            const img = artist.images?.[0]?.url || artist.img || "https://i.scdn.co/image/ab6761610000e5eb55d39ab9c21d506aa52f7021";
+            const rawGenre = artist.genres?.[0] || artist.genre;
+            const genre = formatGenre(rawGenre) || "Unknown Genre";
+
+            return (
+              <div key={artist.id || i} className={styles.artistCard}>
+                <img src={img} alt={name || "Artist"} className={styles.artistImg} />
+                <div className={styles.artistName} style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>{name}</div>
+                <div className={styles.artistGenre} style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>{genre}</div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
       {/* Section 3: Listening Patterns */}
       <div className={styles.card}>
         <h2 className={styles.sectionTitle}>When You Listen Most</h2>
-        <div className={styles.chartContainer}>
-          {listeningBars.map((height, i) => (
-            <div 
-              key={i} 
-              className={styles.chartBar} 
-              style={{ height: `${height}%`, opacity: height / 100 + 0.1 }}
-            ></div>
-          ))}
-        </div>
-        <div className={styles.chartLabels}>
-          <span>12 AM</span>
-          <span>6 AM</span>
-          <span>12 PM</span>
-          <span>6 PM</span>
-          <span>11 PM</span>
+        <div style={{ width: '100%', height: '160px', marginBottom: '16px', position: 'relative' }}>
+          {isLoadingListening ? (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '150px', color: '#b3b3b3', fontSize: '14px', width: '100%' }}>
+              Analyzing listening patterns...
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={150}>
+              <BarChart
+                data={chartData}
+                margin={{ top: 10, right: 10, left: 10, bottom: 5 }}
+              >
+                <defs>
+                  <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#1ed760" stopOpacity={1} />
+                    <stop offset="100%" stopColor="#1db954" stopOpacity={0.3} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255, 255, 255, 0.1)" />
+                <XAxis
+                  dataKey="hour"
+                  tickLine={false}
+                  axisLine={{ stroke: 'rgba(77, 77, 77, 0.4)' }}
+                  tick={{ fill: '#b3b3b3', fontSize: 10, fontFamily: 'var(--font-jakarta, "Plus Jakarta Sans", sans-serif)' }}
+                  interval={0}
+                  tickFormatter={(tick) => {
+                    const targetTicks = ['12 AM', '6 AM', '12 PM', '6 PM', '11 PM'];
+                    return targetTicks.includes(tick) ? tick : '';
+                  }}
+                />
+                <Tooltip
+                  cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
+                  contentStyle={{ backgroundColor: '#282828', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '12px' }}
+                  formatter={(value) => [`${value}%`, 'Activity']}
+                  labelStyle={{ color: '#b3b3b3', fontWeight: 'bold' }}
+                />
+                <Bar
+                  dataKey="value"
+                  fill="url(#barGradient)"
+                  radius={[4, 4, 0, 0]}
+                  animationDuration={1500}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
         </div>
         <p className={styles.chartCaption}>
-          Your activity spikes sharply during morning commutes and late evening focus sessions.
+          {(() => {
+            if (isLoadingListening) {
+              return "Calculating patterns...";
+            }
+            if (!realListeningBars) {
+              return "Your activity spikes sharply during morning commutes and late evening focus sessions.";
+            }
+            const maxVal = Math.max(...realListeningBars);
+            if (maxVal === 0) {
+              return "No recently played tracks found to analyze your listening times.";
+            }
+            const peakHour = realListeningBars.indexOf(maxVal);
+            const ampm = peakHour >= 12 ? 'PM' : 'AM';
+            const displayHour = peakHour % 12 === 0 ? 12 : peakHour % 12;
+            return `Based on your last 50 recently played tracks, your activity peaks around ${displayHour} ${ampm}.`;
+          })()}
         </p>
       </div>
 
