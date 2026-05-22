@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, BarChart2, Sparkles, X } from 'lucide-react';
+import { Home, BarChart2, Sparkles, X } from '@/components/Icons';
 import styles from '@/styles/Sidebar.module.css';
 
 export default function Sidebar({ isOpen, onClose }) {
