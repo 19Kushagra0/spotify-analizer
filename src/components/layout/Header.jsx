@@ -1,7 +1,7 @@
 'use client';
 
 import styles from '@/styles/Header.module.css';
-import { Menu } from 'lucide-react';
+import { Menu } from '@/components/Icons';
 
 export default function Header({ onMenuClick }) {
   return (

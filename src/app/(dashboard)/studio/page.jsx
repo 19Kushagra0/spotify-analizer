@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Send } from 'lucide-react';
+import { Send } from '@/components/Icons';
 import styles from '@/styles/Studio.module.css';
 
 export default function AIStudioPage() {
