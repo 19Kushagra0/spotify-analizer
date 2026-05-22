@@ -1,4 +1,7 @@
+"use client";
+
 import styles from '@/styles/Landing.module.css';
+import { signIn } from 'next-auth/react';
 
 export default function LandingPage() {
   return (
@@ -11,7 +14,7 @@ export default function LandingPage() {
       {/* Main Layout Container */}
       <main className={styles.mainContent}>
         <div className={styles.layoutGrid}>
-          
+
           {/* Left Hero Section */}
           <div className={styles.heroSection}>
             <h1 className={styles.title}>
@@ -20,7 +23,10 @@ export default function LandingPage() {
             <p className={styles.subtitle}>
               AI-powered analytics and playlist generation built on your Spotify data.
             </p>
-            <button className={styles.loginBtn}>
+            <button
+              className={styles.loginBtn}
+              onClick={() => signIn('spotify', { callbackUrl: '/home' })}
+            >
               CONNECT WITH SPOTIFY
             </button>
 
@@ -44,7 +50,7 @@ export default function LandingPage() {
           {/* Right Dashboard Mockup Section */}
           <div className={styles.mockupSection}>
             <div className={styles.mockupCard}>
-              
+
               {/* Header inside mockup */}
               <div className={styles.mockupHeader}>
                 <div className={styles.mockupTitle}>Sonic Profile</div>
