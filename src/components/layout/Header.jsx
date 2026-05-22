@@ -1,13 +1,16 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
+import Image from 'next/image';
 import styles from '@/styles/Header.module.css';
 import { Menu } from '@/components/Icons';
 
 export default function Header({ onMenuClick }) {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const { data: session, status } = useSession();
+  console.log("🎒 Here is what is inside the backpack:", session);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -19,7 +22,10 @@ export default function Header({ onMenuClick }) {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
+  // Optional Best Practice: Don't render the header until NextAuth checks the backpack
+  if (status === "loading") {
+    return <header className={styles.header}>Loading...</header>;
+  }
   return (
     <header className={styles.header}>
       {/* Hamburger — only visible on mobile */}
@@ -35,11 +41,14 @@ export default function Header({ onMenuClick }) {
           aria-label="User menu"
           aria-expanded={open}
         >
-          <span className={styles.greeting}>Welcome back, Alex</span>
-          <img
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7_NnJLRVaQhtQhju47l0ZIXr_chVUV9oKQR7oa2McpRkddfsrirhHxs9znugVuOyet7SFkbSl2KgBmw6dp_BoMvnPmJbAeZlcUbuILH3AglRNYW63zFEzUx6RaVVaYGar2zL-3dR1-1fJdF8TM5oFcrqd1lnXm0cEgaddBe-pPtetwM7i4xQ1Hf8GXDRQXC3QYTSQKL_Tsbeso-TJseU02xptyb9NstWrDKliEhayTld2s56SdD2Omj3jIItRDBC4B7c8Ny0q4SUz"
+          <span className={styles.greeting}>Welcome back, {session?.user?.name || 'User'}</span>
+          <Image
+            src={session?.user?.image || "https://i.scdn.co/image/ab6761610000e5eb55d39ab9c21d506aa52f7021"}
             alt="User Avatar"
+            width={32}
+            height={32}
             className={`${styles.avatar} ${open ? styles.avatarActive : ''}`}
+            unoptimized
           />
         </div>
 

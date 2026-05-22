@@ -28,13 +28,14 @@
 @media (min-width: 1024px) { .bottomGrid { grid-template-columns: 3fr 2fr; } }
 .sectionTitle { font-size: 14px; font-weight: 700; margin: 0 0 16px 0; }
 .moodText { font-size: 14px; color: #b3b3b3; line-height: 1.6; margin: 0; }
-.chartArea { flex-grow: 1; display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; height: 120px; padding-bottom: 24px; }
-.chartColumn { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; }
-.barBg { width: 8px; background-color: #4d4d4d; border-radius: 9999px 9999px 0 0; transition: background-color 0.2s; }
+.chartArea { flex-grow: 1; display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; height: 160px; }
+.chartColumn { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; height: 100%; }
+.barContainer { flex-grow: 1; width: 100%; display: flex; align-items: flex-end; justify-content: center; position: relative; }
+.barBg { width: 12px; background-color: #4d4d4d; border-radius: 9999px 9999px 0 0; transition: background-color 0.2s; }
 .barBg:hover { background-color: var(--primary-container); cursor: pointer; }
-.barActive { width: 8px; background-color: var(--primary-container); border-radius: 9999px 9999px 0 0; box-shadow: 0 0 8px rgba(30,215,96,0.3); }
-.dayLabel { font-size: 11px; color: #b3b3b3; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-.dayLabelActive { font-size: 11px; color: #fff; background-color: rgba(255, 255, 255, 0.15); width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.barActive { width: 12px; background-color: var(--primary-container); border-radius: 9999px 9999px 0 0; box-shadow: 0 0 8px rgba(30,215,96,0.3); }
+.dayLabel { font-size: 11px; color: #b3b3b3; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.dayLabelActive { font-size: 11px; color: #fff; background-color: rgba(255, 255, 255, 0.15); width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 
 /* Mobile tweaks */
 @media (max-width: 767px) {
