@@ -248,9 +248,24 @@ export default function AnalyticsPage() {
               const artist = track.artists ? track.artists[0]?.name : track.artist;
               const img = track.album?.images[0]?.url || track.img || "https://i.scdn.co/image/ab6761610000e5eb55d39ab9c21d506aa52f7021";
               const score = track.popularity !== undefined ? `${track.popularity}%` : track.score;
+              const spotifyUrl = track.external_urls?.spotify || (track.uri ? `https://open.spotify.com/track/${track.uri.replace('spotify:track:', '')}` : '#');
 
               return (
-                <div key={i} className={`${styles.trackRow} ${i % 2 === 0 ? styles.rowEven : styles.rowOdd}`} style={{ transition: 'all 0.2s ease' }} onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'} onMouseOut={(e) => e.currentTarget.style.backgroundColor = ''}>
+                <a 
+                  key={i} 
+                  href={spotifyUrl}
+                  target={spotifyUrl !== '#' ? "_blank" : undefined}
+                  rel="noopener noreferrer"
+                  onClick={(e) => {
+                    if (spotifyUrl === '#') {
+                      e.preventDefault();
+                    }
+                  }}
+                  className={`${styles.trackRow} ${i % 2 === 0 ? styles.rowEven : styles.rowOdd}`} 
+                  style={{ transition: 'all 0.2s ease' }} 
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'} 
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = ''}
+                >
                   <div className={styles.trackRank}>{i + 1}</div>
                   <img src={img} alt="Album Art" className={styles.trackImg} />
                   <div className={styles.trackInfo} style={{ minWidth: 0, flex: 1, marginRight: '16px' }}>
@@ -263,7 +278,7 @@ export default function AnalyticsPage() {
                     </div>
                     <span style={{ fontSize: '11px', color: '#b3b3b3', width: '30px', textAlign: 'right', fontWeight: '600' }}>{score}</span>
                   </div>
-                </div>
+                </a>
               );
             })}
           </div>
@@ -294,13 +309,25 @@ export default function AnalyticsPage() {
             const img = artist.images?.[0]?.url || artist.img || "https://i.scdn.co/image/ab6761610000e5eb55d39ab9c21d506aa52f7021";
             const rawGenre = artist.genres?.[0] || artist.genre;
             const genre = formatGenre(rawGenre) || "Unknown Genre";
+            const spotifyUrl = artist.external_urls?.spotify || (artist.uri ? `https://open.spotify.com/artist/${artist.uri.replace('spotify:artist:', '')}` : '#');
 
             return (
-              <div key={artist.id || i} className={styles.artistCard}>
+              <a 
+                key={artist.id || i} 
+                href={spotifyUrl}
+                target={spotifyUrl !== '#' ? "_blank" : undefined}
+                rel="noopener noreferrer"
+                onClick={(e) => {
+                  if (spotifyUrl === '#') {
+                    e.preventDefault();
+                  }
+                }}
+                className={styles.artistCard}
+              >
                 <img src={img} alt={name || "Artist"} className={styles.artistImg} />
                 <div className={styles.artistName} style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>{name}</div>
                 <div className={styles.artistGenre} style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>{genre}</div>
-              </div>
+              </a>
             );
           })}
         </div>

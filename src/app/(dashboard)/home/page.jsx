@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { getTopTracks, getRecentlyPlayed, getTopArtists } from '@/lib/spotify'; // Import our library functions
 import styles from '@/styles/Home.module.css';
 import { BarChart, Bar, Cell, XAxis, ResponsiveContainer, Tooltip } from 'recharts';
+import { Play, Pause } from 'lucide-react';
 
 const demoChampions = {
   mon: {
@@ -69,6 +70,7 @@ export default function HomePage() {
   const [topGenre, setTopGenre] = useState(null);
   const [currentVibe, setCurrentVibe] = useState(null);
   const [minutesThisWeek, setMinutesThisWeek] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   // Create state to hold our generated Chart Data (plays = raw count for Recharts)
   const [chartData, setChartData] = useState([
@@ -293,7 +295,8 @@ export default function HomePage() {
     artists: [{ name: "M83" }],
     album: {
       images: [{ url: "https://i.scdn.co/image/ab6761610000e5eb55d39ab9c21d506aa52f7021" }]
-    }
+    },
+    preview_url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
   };
 
   const albumArtUrl = displayTrack.album.images[0]?.url || "https://i.scdn.co/image/ab6761610000e5eb55d39ab9c21d506aa52f7021";
@@ -327,8 +330,11 @@ export default function HomePage() {
     <div className={styles.pageContainer}>
 
       {/* Row 1: Now Playing / Top Track Card - WITH REAL DATA! */}
-      <div className={`${styles.card} ${styles.nowPlaying}`}>
-        <div style={{ position: 'relative', width: '120px', height: '120px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0 }}>
+      <div className={`${styles.card} ${styles.nowPlaying}`} style={{ minHeight: '152px', transition: 'all 0.3s ease' }}>
+        <div 
+          className={styles.albumArtContainer}
+          style={{ position: 'relative', width: '120px', height: '120px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0 }}
+        >
           <Image
             src={albumArtUrl} // REAL ALBUM ART!
             alt="Album Art"
@@ -339,24 +345,91 @@ export default function HomePage() {
             unoptimized
           />
         </div>
-        <div className={styles.trackInfo}>
-          <div className={styles.trackHeader}>
-            <div>
-              <h2 className={styles.trackTitle}>{displayTrack.name}</h2> {/* REAL SONG NAME! */}
-              <p className={styles.trackArtist}>{displayTrack.artists[0]?.name}</p> {/* REAL ARTIST! */}
+        <div className={styles.trackInfo} style={{ flex: 1, minWidth: 0 }}>
+          {isPlaying ? (
+            <div style={{ position: 'relative', width: '100%', height: '80px', marginTop: '12px' }}>
+              <iframe 
+                src={`https://open.spotify.com/embed/track/${displayTrack.id}?utm_source=generator&theme=0`} 
+                width="100%" 
+                height="80" 
+                frameBorder="0" 
+                allowFullScreen="" 
+                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                loading="lazy"
+                style={{ borderRadius: '8px', border: 'none' }}
+              ></iframe>
+              <button 
+                onClick={() => setIsPlaying(false)}
+                style={{
+                  position: 'absolute',
+                  top: '-32px',
+                  right: '0',
+                  background: 'rgba(255, 69, 58, 0.15)',
+                  color: '#ff453a',
+                  border: '1px solid rgba(255, 69, 58, 0.25)',
+                  padding: '4px 10px',
+                  borderRadius: '4px',
+                  fontSize: '11px',
+                  cursor: 'pointer',
+                  fontWeight: 'bold',
+                  transition: 'all 0.2s ease',
+                  zIndex: 10
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.background = '#ff453a';
+                  e.currentTarget.style.color = '#fff';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.background = 'rgba(255, 69, 58, 0.15)';
+                  e.currentTarget.style.color = '#ff453a';
+                }}
+              >
+                Close Player
+              </button>
             </div>
-            {topTrack && topTrack !== 'empty' && (
-              <span className={styles.time}>#1 TOP TRACK</span>
-            )}
-          </div>
-          <div className={styles.progressBarBg}>
-            <div className={styles.progressBarFill} style={{ width: "100%" }}></div>
-          </div>
-          <p className={styles.aiCaption}>
-            {topTrack === 'empty'
-              ? "Default track loaded. Listen to more songs on Spotify to see your DNA!"
-              : "Your #1 most played song this month."}
-          </p>
+          ) : (
+            <>
+              <div className={styles.trackHeader}>
+                <div>
+                  <h2 className={styles.trackTitle}>{displayTrack.name}</h2> {/* REAL SONG NAME! */}
+                  <p className={styles.trackArtist}>{displayTrack.artists[0]?.name}</p> {/* REAL ARTIST! */}
+                </div>
+                {topTrack && topTrack !== 'empty' && (
+                  <span className={styles.time}>#1 TOP TRACK</span>
+                )}
+              </div>
+              <div className={styles.progressBarBg} style={{ display: 'none' }}>
+                <div className={styles.progressBarFill} style={{ width: "100%" }}></div>
+              </div>
+              <p className={styles.aiCaption} style={{ marginBottom: '12px' }}>
+                {topTrack === 'empty'
+                  ? "Default track loaded. Listen to more songs on Spotify to see your DNA!"
+                  : "Your #1 most played song this month. Click the button to stream the actual song!"}
+              </p>
+              <button 
+                onClick={() => setIsPlaying(true)}
+                style={{
+                  background: '#1ed760',
+                  color: '#000',
+                  border: 'none',
+                  padding: '6px 16px',
+                  borderRadius: '9999px',
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  transition: 'all 0.2s ease',
+                  alignSelf: 'flex-start'
+                }}
+                onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+              >
+                <Play size={14} fill="#000" /> Play on Spotify
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -364,11 +437,21 @@ export default function HomePage() {
       <div className={styles.statsGrid}>
         <div className={`${styles.card} ${styles.cardLg} ${styles.statCard}`}>
           <span className={styles.statLabel}>TOP GENRE</span>
-          <h3 className={styles.statValue}>{isDemoData ? 'Dark Pop' : (topGenre || 'Discovering...')}</h3>
+          <h3 
+            className={styles.statValue}
+            style={(!isDemoData && topGenre === 'None yet') ? { fontSize: '14px', fontWeight: '500', color: '#b3b3b3', textTransform: 'none', lineHeight: '1.4' } : {}}
+          >
+            {isDemoData ? 'Dark Pop' : (topGenre === 'None yet' ? 'Spend some time listening to generate TOP GENRE' : (topGenre || 'Discovering...'))}
+          </h3>
         </div>
         <div className={`${styles.card} ${styles.cardLg} ${styles.statCard}`}>
           <span className={styles.statLabel}>CURRENT VIBE</span>
-          <h3 className={styles.statValuePrimary}>{isDemoData ? 'High Energy' : (currentVibe || 'Loading...')}</h3>
+          <h3 
+            className={styles.statValuePrimary}
+            style={(!isDemoData && currentVibe === 'Waiting for DNA') ? { fontSize: '14px', fontWeight: '500', color: '#b3b3b3', textTransform: 'none', lineHeight: '1.4' } : {}}
+          >
+            {isDemoData ? 'High Energy' : (currentVibe === 'Waiting for DNA' ? 'Spend some time listening to generate CURRENT VIBE' : (currentVibe || 'Loading...'))}
+          </h3>
         </div>
         <div className={`${styles.card} ${styles.cardLg} ${styles.statCard}`}>
           <span className={styles.statLabel}>MINUTES THIS WEEK</span>
