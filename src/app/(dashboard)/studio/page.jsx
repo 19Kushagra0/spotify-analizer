@@ -6,6 +6,7 @@ import { Send, Trash2 } from '@/components/Icons';
 import styles from '@/styles/Studio.module.css';
 import { db } from '@/lib/firebase';
 import { doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
+import SpotifyLoginModal from '@/components/SpotifyLoginModal';
 
 export default function AIStudioPage() {
   const { data: session } = useSession();
@@ -16,6 +17,7 @@ export default function AIStudioPage() {
   const [saveStatus, setSaveStatus] = useState(""); // "", "success", "error"
   const [libraryOnly, setLibraryOnly] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   // Chat History
   const [chatHistory, setChatHistory] = useState([
@@ -174,9 +176,9 @@ export default function AIStudioPage() {
   };
 
   const saveToSpotify = async () => {
-    if (!session?.accessToken) {
-      setSaveStatus("error");
-      alert("Please log in with Spotify first!");
+    const isDemoBypass = typeof window !== 'undefined' && localStorage.getItem('musicdna_demo_mode') === 'true';
+    if (isDemoBypass || !session?.accessToken) {
+      setIsLoginModalOpen(true);
       return;
     }
     if (generatedTracks.length === 0) return;
@@ -391,24 +393,34 @@ export default function AIStudioPage() {
                   ))}
                 </div>
               ) : generatedTracks.length > 0 ? (
-                generatedTracks.map((track, idx) => (
-                  <a 
-                    key={idx} 
-                    href={track.uri ? `https://open.spotify.com/track/${track.uri.replace('spotify:track:', '')}` : '#'} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className={`${styles.trackRow} ${idx % 2 === 0 ? styles.bgLevel1 : styles.bgLevel2}`}
-                    style={{ textDecoration: 'none', cursor: track.uri ? 'pointer' : 'default' }}
-                  >
-                    <span className={styles.trackNum}>{idx + 1}</span>
-                    <img src={track.img} alt="Album Art" className={styles.trackImg} />
-                    <div className={styles.trackInfo}>
-                      <div className={styles.trackName}>{track.name}</div>
-                      <div className={styles.trackArtist}>{track.artist}</div>
-                    </div>
-                    <div className={styles.trackBadge}>{track.badge}</div>
-                  </a>
-                ))
+                generatedTracks.map((track, idx) => {
+                  const isDemoBypass = typeof window !== 'undefined' && localStorage.getItem('musicdna_demo_mode') === 'true';
+                  const spotifyUrl = track.uri && !isDemoBypass ? `https://open.spotify.com/track/${track.uri.replace('spotify:track:', '')}` : '#';
+                  return (
+                    <a 
+                      key={idx} 
+                      href={spotifyUrl} 
+                      target={spotifyUrl !== '#' ? "_blank" : undefined} 
+                      rel="noopener noreferrer"
+                      onClick={(e) => {
+                        if (spotifyUrl === '#') {
+                          e.preventDefault();
+                          setIsLoginModalOpen(true);
+                        }
+                      }}
+                      className={`${styles.trackRow} ${idx % 2 === 0 ? styles.bgLevel1 : styles.bgLevel2}`}
+                      style={{ textDecoration: 'none', cursor: 'pointer' }}
+                    >
+                      <span className={styles.trackNum}>{idx + 1}</span>
+                      <img src={track.img} alt="Album Art" className={styles.trackImg} />
+                      <div className={styles.trackInfo}>
+                        <div className={styles.trackName}>{track.name}</div>
+                        <div className={styles.trackArtist}>{track.artist}</div>
+                      </div>
+                      <div className={styles.trackBadge}>{track.badge}</div>
+                    </a>
+                  );
+                })
               ) : (
                 <div style={{ textAlign: 'center', color: '#666', padding: '40px 10px', fontSize: '13px' }}>
                   Your generated tracks will appear here. Describe a moment in the chat to begin.
@@ -442,6 +454,7 @@ export default function AIStudioPage() {
 
         </div>
       </div>
+      <SpotifyLoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
     </div>
   );
 }

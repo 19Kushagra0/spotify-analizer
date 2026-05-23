@@ -238,7 +238,7 @@
 }
 
 .artistCard:hover {
-  transform: scale(1.05);
+  transform: scale(1.02);
 }
 
 .artistImg {
@@ -317,3 +317,351 @@
 @media (max-width: 480px) {
   .chartCaption { font-size: 12px; }
 }
+
+/* =========================================
+   Match Badge & Glassmorphic Modal Overlay
+   ========================================= */
+
+.matchBadge {
+  background: rgba(30, 215, 96, 0.12);
+  color: #1ed760;
+  border: 1px solid rgba(30, 215, 96, 0.25);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-block;
+  box-shadow: 0 2px 6px rgba(30, 215, 96, 0.1);
+  transition: all 0.2s ease;
+}
+
+/* Modal Backdrop Overlay */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Modal Box */
+.modalCard {
+  background: rgba(24, 24, 24, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 520px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8);
+  animation: scaleIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Close Button */
+.modalCloseBtn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 20px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+
+.modalCloseBtn:hover {
+  background: #ff453a;
+  border-color: rgba(255, 69, 58, 0.4);
+  transform: scale(1.05);
+}
+
+/* Banner section */
+.modalBanner {
+  position: relative;
+  height: 140px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.modalBannerImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(24px) brightness(0.4);
+  transform: scale(1.2);
+}
+
+.modalBannerOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: linear-gradient(to top, rgba(24, 24, 24, 1) 0%, rgba(24, 24, 24, 0.2) 100%);
+}
+
+/* Content Container */
+.modalContent {
+  padding: 0 32px 32px 32px;
+  margin-top: -60px; /* Offset the header avatar over the banner */
+  position: relative;
+  z-index: 2;
+}
+
+@media (max-width: 480px) {
+  .modalContent { padding: 0 20px 24px 20px; margin-top: -50px; }
+}
+
+.modalHeaderInfo {
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.modalAvatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--primary-container);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5), 0 0 12px rgba(30, 215, 96, 0.3);
+}
+
+@media (max-width: 480px) {
+  .modalAvatar { width: 80px; height: 80px; }
+  .modalHeaderInfo { gap: 12px; }
+}
+
+.modalTitle {
+  font-size: 22px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 4px 0;
+}
+
+.modalGenre {
+  font-size: 13px;
+  color: var(--primary-container);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0;
+}
+
+/* Modal Body elements */
+.modalBody {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Affinity Section */
+.affinitySection {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 14px 18px;
+}
+
+.affinityHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.affinityLabel {
+  font-size: 10px;
+  color: #b3b3b3;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.affinityValue {
+  font-size: 14px;
+  color: #1ed760;
+  font-weight: 800;
+}
+
+.affinityBarBg {
+  width: 100%;
+  height: 6px;
+  background-color: rgba(255,255,255,0.08);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.affinityBarFill {
+  height: 100%;
+  background: linear-gradient(to right, #1db954, #1ed760);
+  border-radius: 9999px;
+  box-shadow: 0 0 8px rgba(30, 215, 96, 0.6);
+}
+
+/* Stats Box */
+.modalStatsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.modalStatBox {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.modalStatLabel {
+  font-size: 9px;
+  color: #8e8e8e;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.modalStatVal {
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.modalStatValPrimary {
+  font-size: 15px;
+  font-weight: 800;
+  color: #1ed760;
+  letter-spacing: 0.5px;
+}
+
+/* Bio Section */
+.bioSection {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bioTitle {
+  font-size: 11px;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.bioText {
+  font-size: 13px;
+  color: #b3b3b3;
+  line-height: 1.6;
+  margin: 0;
+  font-style: italic;
+}
+
+/* Signature Track */
+.signatureTrackSection {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.signatureLabel {
+  font-size: 9px;
+  color: #8e8e8e;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.signatureTrackBox {
+  background: rgba(30, 215, 96, 0.05);
+  border: 1px dashed rgba(30, 215, 96, 0.2);
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sigTrackName {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.sigTrackVibe {
+  font-size: 9px;
+  color: #1ed760;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: rgba(30, 215, 96, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Footer & Buttons */
+.modalFooter {
+  margin-top: 24px;
+  display: flex;
+}
+
+.modalSpotifyBtn {
+  background: #1ed760;
+  color: #000;
+  border: none;
+  width: 100%;
+  padding: 12px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  text-decoration: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 12px rgba(30, 215, 96, 0.25);
+}
+
+.modalSpotifyBtn:hover {
+  transform: scale(1.02);
+  background: #1db954;
+  box-shadow: 0 6px 20px rgba(30, 215, 96, 0.4);
+}
+
+/* Keyframes */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.94); }
+  to { opacity: 1; transform: scale(1); }
+}
+

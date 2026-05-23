@@ -10,10 +10,16 @@ export default function Header({ onMenuClick }) {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
   const { data: session, status } = useSession();
+  const [isDemo, setIsDemo] = useState(false);
+  const [hasMounted, setHasMounted] = useState(false);
+
   console.log("🎒 Here is what is inside the backpack:", session);
 
   // Close dropdown when clicking outside
   useEffect(() => {
+    setIsDemo(localStorage.getItem('musicdna_demo_mode') === 'true');
+    setHasMounted(true);
+
     function handleClickOutside(e) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setOpen(false);
@@ -22,10 +28,23 @@ export default function Header({ onMenuClick }) {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-  // Optional Best Practice: Don't render the header until NextAuth checks the backpack
-  if (status === "loading") {
+
+  const handleLogout = () => {
+    if (isDemo) {
+      localStorage.removeItem('musicdna_demo_mode');
+      window.location.href = '/';
+    } else {
+      signOut({ callbackUrl: '/' });
+    }
+  };
+
+  if (!hasMounted || (status === "loading" && !isDemo)) {
     return <header className={styles.header}>Loading...</header>;
   }
+
+  const userName = isDemo ? 'Guest Explorer' : (session?.user?.name || 'User');
+  const userImage = isDemo ? "https://i.scdn.co/image/ab6761610000e5eb55d39ab9c21d506aa52f7021" : (session?.user?.image || "https://i.scdn.co/image/ab6761610000e5eb55d39ab9c21d506aa52f7021");
+
   return (
     <header className={styles.header}>
       {/* Hamburger — only visible on mobile */}
@@ -41,9 +60,9 @@ export default function Header({ onMenuClick }) {
           aria-label="User menu"
           aria-expanded={open}
         >
-          <span className={styles.greeting}>Welcome back, {session?.user?.name || 'User'}</span>
+          <span className={styles.greeting}>Welcome back, {userName}</span>
           <Image
-            src={session?.user?.image || "https://i.scdn.co/image/ab6761610000e5eb55d39ab9c21d506aa52f7021"}
+            src={userImage}
             alt="User Avatar"
             width={32}
             height={32}
@@ -57,7 +76,7 @@ export default function Header({ onMenuClick }) {
           <div className={styles.dropdown}>
             <button
               className={styles.dropdownItem}
-              onClick={() => signOut({ callbackUrl: '/' })}
+              onClick={handleLogout}
             >
               <svg
                 className={styles.dropdownIcon}
