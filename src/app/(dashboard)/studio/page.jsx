@@ -2,8 +2,10 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
-import { Send } from '@/components/Icons';
+import { Send, Trash2 } from '@/components/Icons';
 import styles from '@/styles/Studio.module.css';
+import { db } from '@/lib/firebase';
+import { doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
 
 export default function AIStudioPage() {
   const { data: session } = useSession();
@@ -13,6 +15,7 @@ export default function AIStudioPage() {
   const [saving, setSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState(""); // "", "success", "error"
   const [libraryOnly, setLibraryOnly] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
 
   // Chat History
   const [chatHistory, setChatHistory] = useState([
@@ -33,6 +36,52 @@ export default function AIStudioPage() {
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatHistory]);
+
+  // 1. Load chat and playlist history from Firestore on mount/session load
+  useEffect(() => {
+    if (!session?.user?.email) return;
+
+    async function loadStudioData() {
+      try {
+        const docRef = doc(db, 'users_studio', session.user.email);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data.chatHistory) setChatHistory(data.chatHistory);
+          if (data.generatedTracks) setGeneratedTracks(data.generatedTracks);
+          if (data.playlistTitle) setPlaylistTitle(data.playlistTitle);
+        }
+      } catch (err) {
+        console.error("Error loading data from Firestore:", err);
+      } finally {
+        setHasLoaded(true);
+      }
+    }
+
+    loadStudioData();
+  }, [session]);
+
+  // 2. Save chat and playlist history to Firestore when state changes (safeguarded by hasLoaded)
+  useEffect(() => {
+    if (!session?.user?.email || !hasLoaded) return;
+
+    async function saveStudioData() {
+      try {
+        const docRef = doc(db, 'users_studio', session.user.email);
+        await setDoc(docRef, {
+          chatHistory,
+          generatedTracks,
+          playlistTitle,
+          updatedAt: new Date()
+        }, { merge: true });
+      } catch (err) {
+        console.error("Error saving data to Firestore:", err);
+      }
+    }
+
+    saveStudioData();
+  }, [chatHistory, generatedTracks, playlistTitle, session, hasLoaded]);
 
   const moodPills = ["Focus", "Heartbreak", "Hype", "Road Trip", "Sleep", "Party"];
 
@@ -182,13 +231,69 @@ export default function AIStudioPage() {
     }
   };
 
+  const handleReset = async () => {
+    if (window.confirm("Are you sure you want to delete your chat history and generated playlist?")) {
+      setChatHistory([
+        {
+          sender: 'ai',
+          text: "Welcome to MusicDNA's AI Studio! Describe a vibe, a specific moment, or select a vibe pill above to generate a custom playlist."
+        }
+      ]);
+      setGeneratedTracks([]);
+      setPlaylistTitle("");
+      setActiveMood("");
+      setSaveStatus("");
+
+      if (session?.user?.email) {
+        try {
+          const docRef = doc(db, 'users_studio', session.user.email);
+          await deleteDoc(docRef);
+        } catch (err) {
+          console.error("Error resetting data in Firestore:", err);
+        }
+      }
+    }
+  };
+
   return (
     <div className={styles.pageContainer}>
       
       {/* Header */}
-      <header className={styles.header}>
-        <h1 className={styles.pageTitle}>AI Studio</h1>
-        <p className={styles.pageSubtitle}>Describe a moment. Get a custom Spotify playlist.</p>
+      <header className={styles.header} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h1 className={styles.pageTitle}>AI Studio</h1>
+          <p className={styles.pageSubtitle}>Describe a moment. Get a custom Spotify playlist.</p>
+        </div>
+        <button 
+          onClick={handleReset}
+          title="Reset Studio Session"
+          style={{
+            background: 'rgba(255, 69, 58, 0.1)',
+            color: '#ff453a',
+            border: '1px solid rgba(255, 69, 58, 0.2)',
+            padding: '8px 16px',
+            borderRadius: '9999px',
+            fontSize: '12px',
+            fontWeight: '700',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            transition: 'all 0.2s ease',
+            height: '36px'
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.background = '#ff453a';
+            e.currentTarget.style.color = '#fff';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.background = 'rgba(255, 69, 58, 0.1)';
+            e.currentTarget.style.color = '#ff453a';
+          }}
+        >
+          <Trash2 size={14} />
+          Delete Chat
+        </button>
       </header>
 
       {/* 2 Column Split */}

@@ -2,8 +2,84 @@
 
 import styles from '@/styles/Landing.module.css';
 import { signIn } from 'next-auth/react';
+import { useState, useEffect } from 'react';
 
 export default function LandingPage() {
+  const [radarValues, setRadarValues] = useState([0.77, 0.77, 0.5, 0.77, 0.77, 0.5]);
+  const [hoveredIndex, setHoveredIndex] = useState(null);
+
+  const featuresList = [
+    "Acousticness",
+    "Danceability",
+    "Energy",
+    "Instrumentalness",
+    "Valence",
+    "Speechiness"
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRadarValues([
+        Math.random() * (0.85 - 0.3) + 0.3,
+        Math.random() * (0.85 - 0.3) + 0.3,
+        Math.random() * (0.85 - 0.3) + 0.3,
+        Math.random() * (0.85 - 0.3) + 0.3,
+        Math.random() * (0.85 - 0.3) + 0.3,
+        Math.random() * (0.85 - 0.3) + 0.3,
+      ]);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Compute vertices on axes based on scale factors
+  const axesEndpoints = [
+    { x: 50, y: 5 },   // Top
+    { x: 95, y: 25 },  // Top-Right
+    { x: 95, y: 75 },  // Bottom-Right
+    { x: 50, y: 95 },  // Bottom
+    { x: 5, y: 75 },   // Bottom-Left
+    { x: 5, y: 25 }    // Top-Left
+  ];
+
+  const computedPoints = axesEndpoints.map((end, idx) => {
+    const s = radarValues[idx];
+    const x = 50 + (end.x - 50) * s;
+    const y = 50 + (end.y - 50) * s;
+    return { x, y };
+  });
+
+  const pointsString = computedPoints.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+
+  // Compute stats dynamically in sync with the graph
+  const dynamicBpm = Math.round(110 + radarValues[1] * 60);
+  const dynamicKey = radarValues[2] > 0.55 ? "Major" : "Minor";
+  const dynamicVocals = radarValues[4] > 0.65 
+    ? "High Vocals" 
+    : radarValues[4] > 0.4 
+      ? "Mixed Vocals" 
+      : "Instrumental";
+
+  // Generates safe bounding placement for tooltips to avoid clipping the card edges
+  const getTooltipStyle = (idx) => {
+    if (idx === null || idx === undefined) return {};
+    const p = computedPoints[idx];
+    let transform = 'translate(12px, -50%)';
+    if (idx === 0) {
+      transform = 'translate(-50%, -125%)';
+    } else if (idx === 3) {
+      transform = 'translate(-50%, 25%)';
+    } else if (idx === 1 || idx === 2) {
+      transform = 'translate(-112%, -50%)';
+    } else if (idx === 4 || idx === 5) {
+      transform = 'translate(12px, -50%)';
+    }
+    return {
+      left: `${p.x.toFixed(1)}%`,
+      top: `${p.y.toFixed(1)}%`,
+      transform,
+    };
+  };
+
   return (
     <div className={styles.pageWrapper}>
       {/* Top Left Wordmark */}
@@ -71,33 +147,86 @@ export default function LandingPage() {
                   <line stroke="#2e372e" strokeWidth="1" x1="50" y1="50" x2="50" y2="95" />
                   <line stroke="#2e372e" strokeWidth="1" x1="50" y1="50" x2="5" y2="75" />
                   <line stroke="#2e372e" strokeWidth="1" x1="50" y1="50" x2="5" y2="25" />
-                  {/* Data Polygon */}
-                  <polygon fill="rgba(30,215,96,0.15)" stroke="#1ed760" strokeWidth="2" points="50,15 85,30 60,70 50,85 15,60 25,20" />
+                                  {/* Data Polygon */}
+                  <polygon 
+                    fill="rgba(30,215,96,0.15)" 
+                    stroke="#1ed760" 
+                    strokeWidth="2" 
+                    points={pointsString} 
+                    style={{ transition: 'all 2.4s ease-in-out' }}
+                  />
+                  {/* Highlight line connecting center to active vertex */}
+                  {hoveredIndex !== null && (
+                    <line 
+                      stroke="#ffffff" 
+                      strokeWidth="1.5" 
+                      x1="50" 
+                      y1="50" 
+                      x2={computedPoints[hoveredIndex].x.toFixed(1)} 
+                      y2={computedPoints[hoveredIndex].y.toFixed(1)}
+                      style={{ transition: 'all 0.15s ease-out' }}
+                    />
+                  )}
                   {/* Data Points */}
-                  <circle cx="50" cy="15" r="2.5" fill="#1ed760" />
-                  <circle cx="85" cy="30" r="2.5" fill="#1ed760" />
-                  <circle cx="60" cy="70" r="2.5" fill="#1ed760" />
-                  <circle cx="50" cy="85" r="2.5" fill="#1ed760" />
-                  <circle cx="15" cy="60" r="2.5" fill="#1ed760" />
-                  <circle cx="25" cy="20" r="2.5" fill="#1ed760" />
+                  {computedPoints.map((p, idx) => {
+                    const isHovered = hoveredIndex === idx;
+                    return (
+                      <g key={idx}>
+                        {/* Interactive Large Invisible Circle */}
+                        <circle 
+                          cx={p.x.toFixed(1)} 
+                          cy={p.y.toFixed(1)} 
+                          r="9" 
+                          fill="transparent" 
+                          style={{ cursor: 'pointer' }}
+                          onMouseEnter={() => setHoveredIndex(idx)}
+                          onMouseLeave={() => setHoveredIndex(null)}
+                        />
+                        {/* Visual Dot */}
+                        <circle 
+                          cx={p.x.toFixed(1)} 
+                          cy={p.y.toFixed(1)} 
+                          r={isHovered ? "3.5" : "2.2"} 
+                          fill="#1ed760" 
+                          stroke={isHovered ? "#ffffff" : "none"}
+                          strokeWidth={isHovered ? "1.5" : "0"}
+                          style={{ 
+                            transition: 'cx 2.4s ease-in-out, cy 2.4s ease-in-out, r 0.2s ease-out, stroke 0.2s ease-out', 
+                            pointerEvents: 'none' 
+                          }}
+                        />
+                      </g>
+                    );
+                  })}
                 </svg>
                 <div className={styles.radarLabelTop}>Acoustic</div>
                 <div className={styles.radarLabelBottom}>Energy</div>
+
+                {/* Interactive Tooltip Overlay */}
+                {hoveredIndex !== null && (
+                  <div 
+                    className={styles.radarTooltip}
+                    style={getTooltipStyle(hoveredIndex)}
+                  >
+                    <div className={styles.tooltipTitle}>{featuresList[hoveredIndex]}</div>
+                    <div className={styles.tooltipValue}>Music DNA : {Math.round(radarValues[hoveredIndex] * 100)}</div>
+                  </div>
+                )}
               </div>
 
               {/* Stat Pills Row */}
               <div className={styles.statPills}>
                 <div className={styles.pill}>
                   <span className={styles.pillDotWarning}></span>
-                  <span className={styles.pillText}>142 BPM</span>
+                  <span className={styles.pillText}>{dynamicBpm} BPM</span>
                 </div>
                 <div className={styles.pill}>
                   <span className={styles.pillDotAnnounce}></span>
-                  <span className={styles.pillText}>Minor</span>
+                  <span className={styles.pillText}>{dynamicKey}</span>
                 </div>
                 <div className={styles.pill}>
                   <span className={styles.pillDotPrimary}></span>
-                  <span className={styles.pillText}>High Vocals</span>
+                  <span className={styles.pillText}>{dynamicVocals}</span>
                 </div>
               </div>
 

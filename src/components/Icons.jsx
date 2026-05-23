@@ -4,5 +4,6 @@ export {
   Sparkles,
   X,
   Menu,
-  Send
+  Send,
+  Trash2
 } from 'lucide-react';
