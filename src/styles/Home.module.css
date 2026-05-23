@@ -43,3 +43,72 @@
   .cardLg { padding: 16px; }
   .statValue, .statValuePrimary { font-size: 20px; }
 }
+
+/* Play/Pause Overlay styles */
+.albumArtContainer {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.albumArtContainer::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0, 0, 0, 0.25); /* Slightly dimmed by default to give contrast to the play button */
+  transition: background-color 0.3s ease;
+  z-index: 1;
+}
+
+.albumArtContainer:hover::after {
+  background-color: rgba(0, 0, 0, 0.45);
+}
+
+.playOverlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+  opacity: 1;
+  transform: scale(0.95);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.albumArtContainer:hover .playOverlay {
+  transform: scale(1.08);
+}
+
+.playButtonCircle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.75);
+  border: 2px solid #1ed760;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.playButtonCircle:hover {
+  background: #1ed760;
+  transform: scale(1.1);
+  box-shadow: 0 0 15px rgba(30, 215, 96, 0.6);
+}
+
+.playButtonCircle:hover svg {
+  color: #000 !important;
+  fill: #000 !important;
+}
+
+.albumArtPlaying {
+  filter: brightness(0.65) blur(1px);
+}
+
+.albumArtContainer:hover .albumArt {
+  transform: scale(1.06);
+}

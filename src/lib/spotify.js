@@ -1,8 +1,8 @@
 // src/lib/spotify.js
 
 // 1. Fetch Top Tracks
-export async function getTopTracks(accessToken, limit = 5) {
-  const response = await fetch(`https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=${limit}`, {
+export async function getTopTracks(accessToken, limit = 5, timeRange = 'medium_term') {
+  const response = await fetch(`https://api.spotify.com/v1/me/top/tracks?time_range=${timeRange}&limit=${limit}`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
@@ -12,8 +12,8 @@ export async function getTopTracks(accessToken, limit = 5) {
 }
 
 // 2. Fetch Top Artists
-export async function getTopArtists(accessToken, limit = 5) {
-  const response = await fetch(`https://api.spotify.com/v1/me/top/artists?time_range=short_term&limit=${limit}`, {
+export async function getTopArtists(accessToken, limit = 5, timeRange = 'medium_term') {
+  const response = await fetch(`https://api.spotify.com/v1/me/top/artists?time_range=${timeRange}&limit=${limit}`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },

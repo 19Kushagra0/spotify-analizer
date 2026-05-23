@@ -140,6 +140,9 @@
   align-items: center;
   padding: 8px 16px;
   gap: 16px;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
 }
 
 @media (max-width: 767px) {
@@ -228,6 +231,14 @@
   align-items: center;
   gap: 8px;
   min-width: 80px;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.artistCard:hover {
+  transform: scale(1.05);
 }
 
 .artistImg {
