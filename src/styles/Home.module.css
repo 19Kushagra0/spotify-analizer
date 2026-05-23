@@ -77,7 +77,7 @@
 }
 
 .albumArtContainer:hover .playOverlay {
-  transform: scale(1.08);
+  transform: scale(1.03);
 }
 
 .playButtonCircle {
@@ -96,7 +96,7 @@
 
 .playButtonCircle:hover {
   background: #1ed760;
-  transform: scale(1.1);
+  transform: scale(1.04);
   box-shadow: 0 0 15px rgba(30, 215, 96, 0.6);
 }
 
@@ -110,5 +110,5 @@
 }
 
 .albumArtContainer:hover .albumArt {
-  transform: scale(1.06);
+  transform: scale(1.02);
 }

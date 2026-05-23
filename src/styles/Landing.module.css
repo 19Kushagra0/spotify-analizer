@@ -81,6 +81,13 @@
   line-height: 1.6;
 }
 
+.ctaButtonGroup {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
 .loginBtn {
   background-color: var(--primary-container);
   color: #000;
@@ -92,11 +99,33 @@
   text-transform: uppercase;
   letter-spacing: 1.8px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .loginBtn:hover {
   background-color: var(--surface-tint);
+  transform: scale(1.02);
+}
+
+.demoBtn {
+  background-color: rgba(255, 255, 255, 0.03);
+  color: var(--text-base);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+  padding: 16px 32px;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.8px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.demoBtn:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: scale(1.02);
 }
 
 .featureHints {

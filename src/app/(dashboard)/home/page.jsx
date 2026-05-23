@@ -13,49 +13,49 @@ const demoChampions = {
     name: "Midnight City",
     artists: [{ name: "M83" }],
     plays: 8,
-    album: { images: [{ url: "https://i.scdn.co/image/ab6761610000e5eb55d39ab9c21d506aa52f7021" }] },
+    album: { images: [{ url: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=300&auto=format&fit=crop" }] },
     mood: "Your perfect Monday vibe. Energizing electronic beats to kickstart your work week."
   },
   tue: {
     name: "Blinding Lights",
     artists: [{ name: "The Weeknd" }],
     plays: 12,
-    album: { images: [{ url: "https://i.scdn.co/image/ab6761610000e5eb4c79a58e0a312a088f1cecc7" }] },
+    album: { images: [{ url: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=300&auto=format&fit=crop" }] },
     mood: "Keeping the momentum high on Tuesday with synth-wave goodness."
   },
   wed: {
     name: "Sweater Weather",
     artists: [{ name: "The Neighbourhood" }],
     plays: 10,
-    album: { images: [{ url: "https://i.scdn.co/image/ab6761610000e5eb09c15ed96d2994f068307b22" }] },
+    album: { images: [{ url: "https://images.unsplash.com/photo-1506157786151-b8491531f063?q=80&w=300&auto=format&fit=crop" }] },
     mood: "Mid-week indie chill. A nostalgic, cozy soundtrack to conquer Wednesday."
   },
   thu: {
     name: "Starboy",
     artists: [{ name: "The Weeknd" }],
     plays: 9,
-    album: { images: [{ url: "https://i.scdn.co/image/ab6761610000e5eb4778150e683a3fcfb65b6eb0" }] },
+    album: { images: [{ url: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=300&auto=format&fit=crop" }] },
     mood: "Pre-weekend hype. An absolute pop masterpiece driving you through Thursday."
   },
   fri: {
     name: "Nightcall",
     artists: [{ name: "Kavinsky" }],
     plays: 15,
-    album: { images: [{ url: "https://i.scdn.co/image/ab6761610000e5ebc58a666e5f8f8ed9796e6d5e" }] },
+    album: { images: [{ url: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?q=80&w=300&auto=format&fit=crop" }] },
     mood: "Friday night drive. Cinematic synth chords to start the weekend in style."
   },
   sat: {
     name: "Do I Wanna Know?",
     artists: [{ name: "Arctic Monkeys" }],
     plays: 18,
-    album: { images: [{ url: "https://i.scdn.co/image/ab6761610000e5eb7da39dedae1f5617a20c1505" }] },
+    album: { images: [{ url: "https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?q=80&w=300&auto=format&fit=crop" }] },
     mood: "Saturday rock spotlight. Crisp guitar riffs setting a legendary weekend mood."
   },
   sun: {
     name: "Intro",
     artists: [{ name: "The xx" }],
     plays: 6,
-    album: { images: [{ url: "https://i.scdn.co/image/ab6761610000e5eba27d5da966f91d5cb0d0ecbc" }] },
+    album: { images: [{ url: "https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?q=80&w=300&auto=format&fit=crop" }] },
     mood: "Sunday wind-down. Minimalist, soothing melodies to prepare for the week ahead."
   }
 };
@@ -85,6 +85,13 @@ export default function HomePage() {
 
   // When the page loads, use the token to fetch the music!
   useEffect(() => {
+    const isDemoBypass = typeof window !== 'undefined' && localStorage.getItem('musicdna_demo_mode') === 'true';
+    if (isDemoBypass) {
+      setIsDemoData(true);
+      setTopTrack('empty');
+      return;
+    }
+
     if (session?.accessToken) {
       async function fetchData() {
         try {
@@ -291,12 +298,13 @@ export default function HomePage() {
 
   // Fallback track details if user has no data or error occurred
   const displayTrack = topTrack && topTrack !== 'empty' ? topTrack : {
+    id: "1eyzFar4H1P381If56UMm2",
     name: "Midnight City",
     artists: [{ name: "M83" }],
     album: {
-      images: [{ url: "https://i.scdn.co/image/ab6761610000e5eb55d39ab9c21d506aa52f7021" }]
+      images: [{ url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=300&auto=format&fit=crop" }]
     },
-    preview_url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+    preview_url: "/soothing-preview.mp3"
   };
 
   const albumArtUrl = displayTrack.album.images[0]?.url || "https://i.scdn.co/image/ab6761610000e5eb55d39ab9c21d506aa52f7021";
@@ -347,46 +355,87 @@ export default function HomePage() {
         </div>
         <div className={styles.trackInfo} style={{ flex: 1, minWidth: 0 }}>
           {isPlaying ? (
-            <div style={{ position: 'relative', width: '100%', height: '80px', marginTop: '12px' }}>
-              <iframe 
-                src={`https://open.spotify.com/embed/track/${displayTrack.id}?utm_source=generator&theme=0`} 
-                width="100%" 
-                height="80" 
-                frameBorder="0" 
-                allowFullScreen="" 
-                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
-                loading="lazy"
-                style={{ borderRadius: '8px', border: 'none' }}
-              ></iframe>
-              <button 
-                onClick={() => setIsPlaying(false)}
-                style={{
-                  position: 'absolute',
-                  top: '-32px',
-                  right: '0',
-                  background: 'rgba(255, 69, 58, 0.15)',
-                  color: '#ff453a',
-                  border: '1px solid rgba(255, 69, 58, 0.25)',
-                  padding: '4px 10px',
-                  borderRadius: '4px',
-                  fontSize: '11px',
-                  cursor: 'pointer',
-                  fontWeight: 'bold',
-                  transition: 'all 0.2s ease',
-                  zIndex: 10
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.background = '#ff453a';
-                  e.currentTarget.style.color = '#fff';
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.background = 'rgba(255, 69, 58, 0.15)';
-                  e.currentTarget.style.color = '#ff453a';
-                }}
-              >
-                Close Player
-              </button>
-            </div>
+            isDemoData ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', marginTop: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '11px', color: '#1ed760', fontWeight: 'bold', letterSpacing: '0.5px' }}>
+                    PLAYING 30S PREVIEW (NO LOGIN REQUIRED)
+                  </span>
+                  <button 
+                    onClick={() => setIsPlaying(false)}
+                    style={{
+                      background: 'rgba(255, 69, 58, 0.15)',
+                      color: '#ff453a',
+                      border: '1px solid rgba(255, 69, 58, 0.25)',
+                      padding: '4px 10px',
+                      borderRadius: '4px',
+                      fontSize: '11px',
+                      cursor: 'pointer',
+                      fontWeight: 'bold',
+                      transition: 'all 0.2s ease',
+                      zIndex: 10
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.background = '#ff453a';
+                      e.currentTarget.style.color = '#fff';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.background = 'rgba(255, 69, 58, 0.15)';
+                      e.currentTarget.style.color = '#ff453a';
+                    }}
+                  >
+                    Close Player
+                  </button>
+                </div>
+                <audio 
+                  src={displayTrack.preview_url}
+                  autoPlay
+                  controls
+                  style={{ width: '100%', borderRadius: '8px', outline: 'none' }}
+                />
+              </div>
+            ) : (
+              <div style={{ position: 'relative', width: '100%', height: '80px', marginTop: '12px' }}>
+                <iframe 
+                  src={`https://open.spotify.com/embed/track/${displayTrack.id}?utm_source=generator&theme=0`} 
+                  width="100%" 
+                  height="80" 
+                  frameBorder="0" 
+                  allowFullScreen="" 
+                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                  loading="lazy"
+                  style={{ borderRadius: '8px', border: 'none' }}
+                ></iframe>
+                <button 
+                  onClick={() => setIsPlaying(false)}
+                  style={{
+                    position: 'absolute',
+                    top: '-32px',
+                    right: '0',
+                    background: 'rgba(255, 69, 58, 0.15)',
+                    color: '#ff453a',
+                    border: '1px solid rgba(255, 69, 58, 0.25)',
+                    padding: '4px 10px',
+                    borderRadius: '4px',
+                    fontSize: '11px',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                    transition: 'all 0.2s ease',
+                    zIndex: 10
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.background = '#ff453a';
+                    e.currentTarget.style.color = '#fff';
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.background = 'rgba(255, 69, 58, 0.15)';
+                    e.currentTarget.style.color = '#ff453a';
+                  }}
+                >
+                  Close Player
+                </button>
+              </div>
+            )
           ) : (
             <>
               <div className={styles.trackHeader}>

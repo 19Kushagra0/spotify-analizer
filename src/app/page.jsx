@@ -3,8 +3,10 @@
 import styles from '@/styles/Landing.module.css';
 import { signIn } from 'next-auth/react';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function LandingPage() {
+  const router = useRouter();
   const [radarValues, setRadarValues] = useState([0.77, 0.77, 0.5, 0.77, 0.77, 0.5]);
   const [hoveredIndex, setHoveredIndex] = useState(null);
 
@@ -99,12 +101,23 @@ export default function LandingPage() {
             <p className={styles.subtitle}>
               AI-powered analytics and playlist generation built on your Spotify data.
             </p>
-            <button
-              className={styles.loginBtn}
-              onClick={() => signIn('spotify', { callbackUrl: '/home' })}
-            >
-              CONNECT WITH SPOTIFY
-            </button>
+            <div className={styles.ctaButtonGroup}>
+              <button
+                className={styles.loginBtn}
+                onClick={() => signIn('spotify', { callbackUrl: '/home' })}
+              >
+                CONNECT WITH SPOTIFY
+              </button>
+              <button
+                className={styles.demoBtn}
+                onClick={() => {
+                  localStorage.setItem('musicdna_demo_mode', 'true');
+                  router.push('/home');
+                }}
+              >
+                TRY DEMO MODE
+              </button>
+            </div>
 
             {/* Feature Hints */}
             <div className={styles.featureHints}>

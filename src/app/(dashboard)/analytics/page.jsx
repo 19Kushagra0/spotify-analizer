@@ -5,12 +5,130 @@ import { useSession } from 'next-auth/react';
 import styles from '@/styles/Analytics.module.css';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, CartesianGrid } from 'recharts';
 import { getTopTracks, getTopArtists, getRecentlyPlayed } from '@/lib/spotify';
+import SpotifyLoginModal from '@/components/SpotifyLoginModal';
 
 const formatGenre = (genre) =>
   genre
     ?.split(' ')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
+
+export const MOCK_ARTISTS_POOL = [
+  {
+    name: "Daft Punk",
+    genre: "Electronic",
+    img: "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=300&auto=format&fit=crop",
+    signatureTrack: "Harder, Better, Faster",
+    description: "The legendary French electronic duo who revolutionized house music and synthpop. They form a critical, highly-ordered pillar of your synthesized rhythm DNA.",
+    external_urls: { spotify: "https://open.spotify.com/search/Daft%20Punk" }
+  },
+  {
+    name: "Justice",
+    genre: "French House",
+    img: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=300&auto=format&fit=crop",
+    signatureTrack: "Genesis",
+    description: "Heavy distorted basslines combined with classical structures. Justice gives your dashboard fingerprint an intense, rock-inspired electronic pulse.",
+    external_urls: { spotify: "https://open.spotify.com/search/Justice" }
+  },
+  {
+    name: "Kavinsky",
+    genre: "Synthwave",
+    img: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?q=80&w=300&auto=format&fit=crop",
+    signatureTrack: "Nightcall",
+    description: "The dark, cinematic neon icon of late-night synthwave. Kavinsky drives your high-tempo nighttime listening spike with retro-futuristic chords.",
+    external_urls: { spotify: "https://open.spotify.com/search/Kavinsky" }
+  },
+  {
+    name: "M83",
+    genre: "Dream Pop",
+    img: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=300&auto=format&fit=crop",
+    signatureTrack: "Midnight City",
+    description: "Cascading walls of ethereal synth chords and grand acoustic dynamics. M83 brings atmospheric depth and nostalgic pop aesthetics to your vibe index.",
+    external_urls: { spotify: "https://open.spotify.com/search/m83" }
+  },
+  {
+    name: "The Weeknd",
+    genre: "R&B",
+    img: "https://images.unsplash.com/photo-1506157786151-b8491531f063?q=80&w=300&auto=format&fit=crop",
+    signatureTrack: "Blinding Lights",
+    description: "The chart-topping pioneer of dark synth-R&B. His moody vocals over high-tempo pop rhythms form a highly consistent affinity category in your daily cycles.",
+    external_urls: { spotify: "https://open.spotify.com/search/The%20Weeknd" }
+  },
+  {
+    name: "Tame Impala",
+    genre: "Psychedelic Rock",
+    img: "https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?q=80&w=300&auto=format&fit=crop",
+    signatureTrack: "The Less I Know The Better",
+    description: "Kevin Parker's rich studio-driven psychedelic indie project. Dynamic drum grooves and phased guitars give your DNA an incredibly wavy and melodic flow.",
+    external_urls: { spotify: "https://open.spotify.com/search/tame%20impala" }
+  },
+  {
+    name: "Jamie xx",
+    genre: "Indie Electronica",
+    img: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=300&auto=format&fit=crop",
+    signatureTrack: "Gosh",
+    description: "Minimalist, steel-drum fueled UK garage and house rhythms. Perfect for driving your focus levels with atmospheric, club-infused chill beats.",
+    external_urls: { spotify: "https://open.spotify.com/search/Jamie%20xx" }
+  },
+  {
+    name: "Grimes",
+    genre: "Art Pop",
+    img: "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?q=80&w=300&auto=format&fit=crop",
+    signatureTrack: "Genesis",
+    description: "Ethereal cyberpunk melodies overlaid with hyperactive DIY pop production. Grimes injects a playful yet intensely electronic texture into your top genres.",
+    external_urls: { spotify: "https://open.spotify.com/search/Grimes" }
+  },
+  {
+    name: "Gorillaz",
+    genre: "Alternative Hip Hop",
+    img: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=300&auto=format&fit=crop",
+    signatureTrack: "Feel Good Inc.",
+    description: "Damon Albarn's genre-fluid animated collective. Melding rap, dub, and alternative rock, Gorillaz represents your eclectic, highly diverse side.",
+    external_urls: { spotify: "https://open.spotify.com/search/Gorillaz" }
+  },
+  {
+    name: "Rufus Du Sol",
+    genre: "Melodic House",
+    img: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?q=80&w=300&auto=format&fit=crop",
+    signatureTrack: "Innerbloom",
+    description: "Deep, sweeping melodic house anthems built on melancholic synth structures. Perfect for keeping you locked in focused concentration loops.",
+    external_urls: { spotify: "https://open.spotify.com/search/Rufus%20Du%20Sol" }
+  },
+  {
+    name: "Flume",
+    genre: "Future Bass",
+    img: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?q=80&w=300&auto=format&fit=crop",
+    signatureTrack: "Never Be Like You",
+    description: "Granular sound synthesis, pitched vocals, and off-kilter beats. Flume gives your music DNA a hyper-modern, avant-garde electronic dimension.",
+    external_urls: { spotify: "https://open.spotify.com/search/Flume" }
+  },
+  {
+    name: "Tycho",
+    genre: "Ambient Electronic",
+    img: "https://images.unsplash.com/photo-1446057032654-9d8885db76c6?q=80&w=300&auto=format&fit=crop",
+    signatureTrack: "Awake",
+    description: "Warm, analog synths and organic guitar hums that simulate clean morning sunlight. Tycho represents your absolute peak state of studying calm.",
+    external_urls: { spotify: "https://open.spotify.com/search/Tycho" }
+  }
+];
+
+export const MOCK_TRACKS_POOL = [
+  { name: "Midnight City", artist: "M83", img: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=300&auto=format&fit=crop" },
+  { name: "Nightcall", artist: "Kavinsky", img: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?q=80&w=300&auto=format&fit=crop" },
+  { name: "The Less I Know The Better", artist: "Tame Impala", img: "https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?q=80&w=300&auto=format&fit=crop" },
+  { name: "Blinding Lights", artist: "The Weeknd", img: "https://images.unsplash.com/photo-1506157786151-b8491531f063?q=80&w=300&auto=format&fit=crop" },
+  { name: "Gosh", artist: "Jamie xx", img: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=300&auto=format&fit=crop" },
+  { name: "Starboy", artist: "The Weeknd", img: "https://images.unsplash.com/photo-1506157786151-b8491531f063?q=80&w=300&auto=format&fit=crop" },
+  { name: "Loud Places", artist: "Jamie xx", img: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=300&auto=format&fit=crop" },
+  { name: "Let It Happen", artist: "Tame Impala", img: "https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?q=80&w=300&auto=format&fit=crop" },
+  { name: "Harder, Better, Faster", artist: "Daft Punk", img: "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=300&auto=format&fit=crop" },
+  { name: "Genesis", artist: "Grimes", img: "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?q=80&w=300&auto=format&fit=crop" },
+  { name: "Feel Good Inc.", artist: "Gorillaz", img: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=300&auto=format&fit=crop" },
+  { name: "On Melancholy Hill", artist: "Gorillaz", img: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=300&auto=format&fit=crop" },
+  { name: "Innerbloom", artist: "Rufus Du Sol", img: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?q=80&w=300&auto=format&fit=crop" },
+  { name: "Never Be Like You", artist: "Flume", img: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?q=80&w=300&auto=format&fit=crop" },
+  { name: "Awake", artist: "Tycho", img: "https://images.unsplash.com/photo-1446057032654-9d8885db76c6?q=80&w=300&auto=format&fit=crop" }
+];
 
 export default function AnalyticsPage() {
   const { data: session, status } = useSession();
@@ -24,7 +142,65 @@ export default function AnalyticsPage() {
   const [realListeningBars, setRealListeningBars] = useState(null);
   const [isLoadingListening, setIsLoadingListening] = useState(true);
 
+  // Demo States
+  const [isDemo, setIsDemo] = useState(false);
+  const [demoArtists, setDemoArtists] = useState([]);
+  const [demoTracks, setDemoTracks] = useState([]);
+  const [demoRadarData, setDemoRadarData] = useState([
+    { subject: 'Electronic', value: 95 },
+    { subject: 'Synthwave', value: 85 },
+    { subject: 'R&B', value: 70 },
+    { subject: 'Dream Pop', value: 65 },
+    { subject: 'French House', value: 60 },
+    { subject: 'Pop', value: 45 }
+  ]);
+  const [selectedArtist, setSelectedArtist] = useState(null);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
+  const displayRadarData = realRadarData || demoRadarData;
+
   useEffect(() => {
+    const isDemoBypass = typeof window !== 'undefined' && localStorage.getItem('musicdna_demo_mode') === 'true';
+    if (isDemoBypass) {
+      setIsDemo(true);
+
+      // Select randomized artists and assign random scores & plays
+      const shuffledArtists = [...MOCK_ARTISTS_POOL].sort(() => 0.5 - Math.random());
+      const selectedArtists = shuffledArtists.slice(0, 6).map((artist, idx) => {
+        const randomScore = Math.floor(Math.random() * (98 - 65 + 1)) + 65; // between 65 and 98
+        return {
+          ...artist,
+          score: `${randomScore}%`,
+          plays: Math.floor(randomScore / 4) + 6
+        };
+      }).sort((a, b) => parseInt(b.score) - parseInt(a.score));
+      setDemoArtists(selectedArtists);
+
+      // Select randomized tracks and assign random scores
+      const shuffledTracks = [...MOCK_TRACKS_POOL].sort(() => 0.5 - Math.random());
+      const selectedTracks = shuffledTracks.slice(0, 10).map((track) => {
+        const randomScore = Math.floor(Math.random() * (98 - 50 + 1)) + 50; // between 50 and 98
+        return {
+          ...track,
+          score: `${randomScore}%`
+        };
+      }).sort((a, b) => parseInt(b.score) - parseInt(a.score));
+      setDemoTracks(selectedTracks);
+
+      // Randomize Radar values dynamically based on selected genres
+      const newRadar = selectedArtists.map((a, idx) => ({
+        subject: a.genre,
+        value: 95 - (idx * 8) - Math.floor(Math.random() * 5)
+      }));
+      setDemoRadarData(newRadar);
+
+      setIsLoadingTracks(false);
+      setIsLoadingArtists(false);
+      setIsLoadingRadar(false);
+      setIsLoadingListening(false);
+      return;
+    }
+
     if (session?.accessToken) {
       async function fetchData() {
         try {
@@ -110,28 +286,6 @@ export default function AnalyticsPage() {
     }
   }, [session, status]);
 
-  // Dummy Data Arrays (Ready for Spotify API later)
-  const topTracks = [
-    { name: "Midnight City", artist: "M83", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAukpnTOo3C7bUVlsyirPp3DhQ01oHG9vEmvtHK8-tGbB0dlOhQXpbRquYeapUIyUpYfNgcf-9UE4K5pFN7abMSd5VYHpFJAod7E59OdtAtR1ZoB4SR2lD_klPUROM91EvMTtoGYQoY2OezDNkT2_qwksbKZCKcw3Q5Zt-t-7VnsJmsP7Z5EjL5wrXV83xjHnQPRUNz-qRNQEcC-hfDLCsyBGuXDl90TQt0Ja4EpWFOtX_HgataZhMDJjqlq2v12I1Em3K7NwpkOY0s", score: "100%" },
-    { name: "Nightcall", artist: "Kavinsky", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBDUpXjaZLK4pIn4KumhlbTymgaElzgYMPjGjob267_5zbe1UCs_K9yG5HHq05qfYaD6ctshEw0a8wQK2w0KZEEc9Yiy34askzYkwU2_UGrg4SUv_fkAZncpkSAB8JuTm_3BqB-XVKDQbTldlSdIsuxYna2vXWWob5aEGQM9GcokRn1MN8KrrGTCc3nLtqYvcRxQ6HvQJWca4iDEpEeo-hg0cXTga970EyfOhlu9hB6nuSdD9lnzDac6_eDZITjr7eUuRL9wkz0hep0", score: "85%" },
-    { name: "The Less I Know The Better", artist: "Tame Impala", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBQK5kadZv5O6CDhM5Dsj_5zj1FS9oulN9CJEcD_rsd5BG7eQBKrcmb9wU_R9P26o9TCNNCcKF1pi_Ni5wNFjyqC4XtQcIsdeuAlvWo1s2K55J7YQi3h40R1HQiTabtGMlqTexl1PFcS7HT-ExANS6XrWA_GuVF7-31SEInFoGbmxShqjppg95b2WzfnohPBF0TutFcIGjGVhGYxbet29Tgt9S2Nw0PWa55Ikyy4ZGUZWZnxnqw2cjn66s0LpAbztFeG5agBfT14cwr", score: "75%" },
-    { name: "Blinding Lights", artist: "The Weeknd", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBHp38gwC2wx0qtcPt8OxhLxtM_2_LyJk4mmAerPOYm2XhTzrd5XVQx5GA293vMclP0Hs8cTY8Y8h9_BGuHQwa4vbfSi2vgDMFCzN-YjDA8nKHKucbTSn-LleBcGZDQRl6KHQMvB5DhjTZka8Jk1F4az2ksQduSoNAl1HhGZlYln-ApzlXkOfUsOXsOylIyDdWyvlsuoRCMUoFZpEwXxmkW5JN0YzSqwYrqTMQQoYiO8BHzBC1ZVqm3teAQhUqlY14vjs2wx6cWkY_k", score: "60%" },
-    { name: "Gosh", artist: "Jamie xx", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAtziX7vBawq6GB9QSpltktOH8HH1CfuA4DnQ4iDPwuFrgO7I-YfdwzwDYcAuuwVQK1fAsCfj5TNuKajCyeGuIX69gwuMm32osIpLlbembkS6A5QO3-UEllfyZiLiRttuanhnA71-yN5haNphnnJd3N6we9kmAGIaFyHji-r1iSRn9aS1xalxpVHgoa8g0DY8-zHRSWouAHVPju6lAow-Nq1vH7k7uVfwn6kzRUopgfPyiaYscF7xcRwbwqZEuxDeRCoqFDCHLCKWQW", score: "50%" },
-    { name: "Starboy", artist: "The Weeknd", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBHp38gwC2wx0qtcPt8OxhLxtM_2_LyJk4mmAerPOYm2XhTzrd5XVQx5GA293vMclP0Hs8cTY8Y8h9_BGuHQwa4vbfSi2vgDMFCzN-YjDA8nKHKucbTSn-LleBcGZDQRl6KHQMvB5DhjTZka8Jk1F4az2ksQduSoNAl1HhGZlYln-ApzlXkOfUsOXsOylIyDdWyvlsuoRCMUoFZpEwXxmkW5JN0YzSqwYrqTMQQoYiO8BHzBC1ZVqm3teAQhUqlY14vjs2wx6cWkY_k", score: "45%" },
-    { name: "Loud Places", artist: "Jamie xx", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAtziX7vBawq6GB9QSpltktOH8HH1CfuA4DnQ4iDPwuFrgO7I-YfdwzwDYcAuuwVQK1fAsCfj5TNuKajCyeGuIX69gwuMm32osIpLlbembkS6A5QO3-UEllfyZiLiRttuanhnA71-yN5haNphnnJd3N6we9kmAGIaFyHji-r1iSRn9aS1xalxpVHgoa8g0DY8-zHRSWouAHVPju6lAow-Nq1vH7k7uVfwn6kzRUopgfPyiaYscF7xcRwbwqZEuxDeRCoqFDCHLCKWQW", score: "40%" },
-    { name: "Let It Happen", artist: "Tame Impala", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBQK5kadZv5O6CDhM5Dsj_5zj1FS9oulN9CJEcD_rsd5BG7eQBKrcmb9wU_R9P26o9TCNNCcKF1pi_Ni5wNFjyqC4XtQcIsdeuAlvWo1s2K55J7YQi3h40R1HQiTabtGMlqTexl1PFcS7HT-ExANS6XrWA_GuVF7-31SEInFoGbmxShqjppg95b2WzfnohPBF0TutFcIGjGVhGYxbet29Tgt9S2Nw0PWa55Ikyy4ZGUZWZnxnqw2cjn66s0LpAbztFeG5agBfT14cwr", score: "35%" },
-    { name: "Harder, Better, Faster", artist: "Daft Punk", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuA7FonKW7hUmmlw4ZJk0KW48eGUhD7YShnYKZNOP_VzZCtevhu27dgkcH32UTStO2n0apBaPQcl7wPKUmuzaUPTSetY1hmvAhpLOj2t2oRolUa_6fH3YOECgJ9OS3wLxatUamQzLJrRVgaF7z0vyLBFFSd02Eqi4lkhZTM81EL0KSIrumf2zTKmmhej4pQZcAJTkct0T5rrTpKuBn0GBvPFZNXeInnXqexV8y_lw0d0m7b3ZpfVVxIV5KVfcyHxEVyfPP94tyMumuNb", score: "30%" },
-    { name: "Genesis", artist: "Grimes", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAukpnTOo3C7bUVlsyirPp3DhQ01oHG9vEmvtHK8-tGbB0dlOhQXpbRquYeapUIyUpYfNgcf-9UE4K5pFN7abMSd5VYHpFJAod7E59OdtAtR1ZoB4SR2lD_klPUROM91EvMTtoGYQoY2OezDNkT2_qwksbKZCKcw3Q5Zt-t-7VnsJmsP7Z5EjL5wrXV83xjHnQPRUNz-qRNQEcC-hfDLCsyBGuXDl90TQt0Ja4EpWFOtX_HgataZhMDJjqlq2v12I1Em3K7NwpkOY0s", score: "25%" }
-  ];
-
-  const topArtists = [
-    { name: "Daft Punk", genre: "Electronic", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuA7FonKW7hUmmlw4ZJk0KW48eGUhD7YShnYKZNOP_VzZCtevhu27dgkcH32UTStO2n0apBaPQcl7wPKUmuzaUPTSetY1hmvAhpLOj2t2oRolUa_6fH3YOECgJ9OS3wLxatUamQzLJrRVgaF7z0vyLBFFSd02Eqi4lkhZTM81EL0KSIrumf2zTKmmhej4pQZcAJTkct0T5rrTpKuBn0GBvPFZNXeInnXqexV8y_lw0d0m7b3ZpfVVxIV5KVfcyHxEVyfPP94tyMumuNb" },
-    { name: "Justice", genre: "French House", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBq43V7bDQUrBSHvrY1UbUrc4VsaiAGzXJGq_DXYsuatAqBySoMOf1vXVOb2CUezRtU53Rc8DpItWMBzhJTnaA0gDokuR9ldR1fvEnnK70YxPcVG7OdrZR-D9C6XPM5FdYw9GghLZEsVLcGqiw8J98p0wDfNtSAMmDbiUaGEWWuoe-dCl-a30fpCRaeXW8zZPOtmfzDVsCCgtm99Un12mxtGwCanndUhTVea1M340LQO-6colImc_IAlgS4GVgMEFR2brEypSOpqfU5" },
-    { name: "Kavinsky", genre: "Synthwave", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuDu037KVyS27JbkSctGWsG2pQBB867QlZc5spxbbV3cMrsChhppfW6OKp9nzga_TZ3gA2ZKu8dsQ0DUWuENhTHh7NLZo00daWrYxJ67y7yQaMR3dU_1BkczoIGSI9yJmLC9ejc1fxK0BmBHR_3S59rZRcmq3i54xi8E1LAhucpypc7rSNlNwa3Q2zZRph8k29tAR6cQqVXs6gAG6GJKE_AT2sjb7vr9QNsxTs9wU4tlgQm43spvlOUHqVQXOMmLaqPlKNWmz1cbycf8" },
-    { name: "M83", genre: "Dream Pop", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAvmzs4UDt_YtYV-p87KXF38OFC72qokg_arflFwVBs9U6EdTr0xEmXfVV1qnzljf8f_bAQkrWOYePp9DZksRZMxl8ylXQy7ZPJJIMkT7ED1PBgrR6A7mA6D3ZQXCHKQC7TXAaP6egp2KY1FUUX-60jI75uYpZ4y4Z25j16C0CtlqVOr2GJeYsC0wj-AwMbPg-LRDwhMm_GoFodRLdHQtDqyrUad_DqfsAphSBCTHPRP1Y4x8rD_paDelwtANAc4k4WXQDiya5pBc05" },
-    { name: "The Weeknd", genre: "R&B", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAAWz_Dq3AzVY-LTei6ktQ-upp_K_PwJGCbxxMYRtV-bUC9UCUid51J8U3onIoiKB6SyN61UxdrbEsY_6BPeLmNP48VhaDa6v0p6BpyLChiVafWsJyxvUnq8bIsHPvp_TGU99RHRJEcZkCPZYrJ7eP3C1LyCTadObn9VO3HuG9eyUXwpoyqdB8DS3hVkmA_HBBZyHYLPELHOKR2KaF5CXWWcD0a6TqpsqPKvHk5MrvwNLhK26hWfVPQGFBMyj7RIy6Lfn_7zNjGHdpB" }
-  ];
-
   const listeningBars = [10, 5, 5, 10, 15, 20, 35, 55, 80, 95, 85, 65, 45, 30, 40, 50, 70, 100, 90, 75, 60, 40, 30, 20];
 
   const formatHour = (hour) => {
@@ -151,7 +305,7 @@ export default function AnalyticsPage() {
       {/* Header */}
       <header className={styles.header}>
         <h1 className={styles.pageTitle}>Your Music DNA</h1>
-        <p className={styles.pageSubtitle}>Based on your top 50 artists this month</p>
+        <p className={styles.pageSubtitle}>Based on your top artists this month</p>
       </header>
 
       {/* Section 1: 2 Cols */}
@@ -171,14 +325,7 @@ export default function AnalyticsPage() {
                 </div>
               ) : (
                 <ResponsiveContainer width="100%" aspect={1.2}>
-                  <RadarChart cx="50%" cy="50%" outerRadius="65%" data={radarError || !realRadarData ? [
-                    { subject: 'Genre 1', value: 0 },
-                    { subject: 'Genre 2', value: 0 },
-                    { subject: 'Genre 3', value: 0 },
-                    { subject: 'Genre 4', value: 0 },
-                    { subject: 'Genre 5', value: 0 },
-                    { subject: 'Genre 6', value: 0 }
-                  ] : realRadarData}>
+                  <RadarChart cx="50%" cy="50%" outerRadius="65%" data={displayRadarData}>
                     <PolarGrid stroke="#4d4d4d" strokeWidth={1} />
                     <PolarAngleAxis dataKey="subject" tick={{ fill: '#b3b3b3', fontSize: 11, fontFamily: 'var(--font-jakarta, "Plus Jakarta Sans", sans-serif)' }} />
                     <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
@@ -208,9 +355,9 @@ export default function AnalyticsPage() {
           <div>
             <div className={styles.aiLabel}>AI INTERPRETATION</div>
             <p className={styles.aiText}>
-              {realRadarData && realRadarData[0]?.subject !== 'Genre 1' ? (
+              {displayRadarData && displayRadarData[0]?.subject !== '-' ? (
                 <>
-                  <span style={{ fontStyle: 'italic', color: '#fff' }}>Your genre profile is heavily anchored by {realRadarData[0].subject}.</span> The unique distribution across these styles highlights the core aesthetic that defines your current listening habits.
+                  <span style={{ fontStyle: 'italic', color: '#fff' }}>Your genre profile is heavily anchored by {displayRadarData[0].subject}.</span> The unique distribution across these styles highlights the core aesthetic that defines your current listening habits.
                 </>
               ) : (
                 <>
@@ -239,11 +386,11 @@ export default function AnalyticsPage() {
                   </div>
                 ))}
               </div>
-            ) : (realTopTracks || topTracks).length === 0 ? (
+            ) : (realTopTracks || demoTracks).length === 0 ? (
               <div style={{ color: '#b3b3b3', padding: '40px 0', fontSize: '14px', width: '100%', textAlign: 'center', fontStyle: 'italic' }}>
                 Spend more time on Spotify to get top tracks.
               </div>
-            ) : (realTopTracks || topTracks).slice(0, 10).map((track, i) => {
+            ) : (realTopTracks || demoTracks).slice(0, 10).map((track, i) => {
               const name = track.name;
               const artist = track.artists ? track.artists[0]?.name : track.artist;
               const img = track.album?.images[0]?.url || track.img || "https://i.scdn.co/image/ab6761610000e5eb55d39ab9c21d506aa52f7021";
@@ -253,11 +400,14 @@ export default function AnalyticsPage() {
               return (
                 <a 
                   key={i} 
-                  href={spotifyUrl}
-                  target={spotifyUrl !== '#' ? "_blank" : undefined}
+                  href={isDemo ? '#' : spotifyUrl}
+                  target={!isDemo && spotifyUrl !== '#' ? "_blank" : undefined}
                   rel="noopener noreferrer"
                   onClick={(e) => {
-                    if (spotifyUrl === '#') {
+                    if (isDemo) {
+                      e.preventDefault();
+                      setIsLoginModalOpen(true);
+                    } else if (spotifyUrl === '#') {
                       e.preventDefault();
                     }
                   }}
@@ -300,25 +450,29 @@ export default function AnalyticsPage() {
                 </div>
               ))}
             </div>
-          ) : (realTopArtists || topArtists).length === 0 ? (
+          ) : (realTopArtists || demoArtists).length === 0 ? (
             <div style={{ color: '#b3b3b3', padding: '40px 0', fontSize: '14px', width: '100%', textAlign: 'center', fontStyle: 'italic' }}>
               Spend more time on Spotify to get top artists.
             </div>
-          ) : (realTopArtists || topArtists).slice(0, 10).map((artist, i) => {
+          ) : (realTopArtists || demoArtists).map((artist, i) => {
             const name = artist.name;
             const img = artist.images?.[0]?.url || artist.img || "https://i.scdn.co/image/ab6761610000e5eb55d39ab9c21d506aa52f7021";
             const rawGenre = artist.genres?.[0] || artist.genre;
             const genre = formatGenre(rawGenre) || "Unknown Genre";
             const spotifyUrl = artist.external_urls?.spotify || (artist.uri ? `https://open.spotify.com/artist/${artist.uri.replace('spotify:artist:', '')}` : '#');
+            const score = artist.score || "90%";
 
             return (
               <a 
-                key={artist.id || i} 
-                href={spotifyUrl}
-                target={spotifyUrl !== '#' ? "_blank" : undefined}
+                key={artist.id || artist.name || i} 
+                href={isDemo ? '#' : spotifyUrl}
+                target={!isDemo && spotifyUrl !== '#' ? "_blank" : undefined}
                 rel="noopener noreferrer"
                 onClick={(e) => {
-                  if (spotifyUrl === '#') {
+                  if (isDemo) {
+                    e.preventDefault();
+                    setSelectedArtist(artist);
+                  } else if (spotifyUrl === '#') {
                     e.preventDefault();
                   }
                 }}
@@ -326,7 +480,13 @@ export default function AnalyticsPage() {
               >
                 <img src={img} alt={name || "Artist"} className={styles.artistImg} />
                 <div className={styles.artistName} style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>{name}</div>
-                <div className={styles.artistGenre} style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>{genre}</div>
+                <div className={styles.artistGenre} style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
+                  {isDemo ? (
+                    <span className={styles.matchBadge}>{score} Affinity</span>
+                  ) : (
+                    genre
+                  )}
+                </div>
               </a>
             );
           })}
@@ -403,6 +563,90 @@ export default function AnalyticsPage() {
         </p>
       </div>
 
+      {/* PREMIUM IN-APP ARTIST DETAIL MODAL OVERLAY */}
+      {selectedArtist && (
+        <div className={styles.modalOverlay} onClick={() => setSelectedArtist(null)}>
+          <div className={styles.modalCard} onClick={(e) => e.stopPropagation()}>
+            <button className={styles.modalCloseBtn} onClick={() => setSelectedArtist(null)}>×</button>
+            
+            {/* Banner with blur backdrop */}
+            <div className={styles.modalBanner}>
+              <img src={selectedArtist.img} alt={selectedArtist.name} className={styles.modalBannerImg} />
+              <div className={styles.modalBannerOverlay} />
+            </div>
+
+            {/* Modal Content container */}
+            <div className={styles.modalContent}>
+              <div className={styles.modalHeaderInfo}>
+                <img src={selectedArtist.img} alt={selectedArtist.name} className={styles.modalAvatar} />
+                <div>
+                  <h2 className={styles.modalTitle}>{selectedArtist.name}</h2>
+                  <p className={styles.modalGenre}>{selectedArtist.genre || "Alternative Electronic"}</p>
+                </div>
+              </div>
+
+              <div className={styles.modalBody}>
+                {/* Affinity DNA Slider */}
+                <div className={styles.affinitySection}>
+                  <div className={styles.affinityHeader}>
+                    <span className={styles.affinityLabel}>DNA AFFINITY</span>
+                    <span className={styles.affinityValue}>{selectedArtist.score || "94%"} Match</span>
+                  </div>
+                  <div className={styles.affinityBarBg}>
+                    <div className={styles.affinityBarFill} style={{ width: selectedArtist.score || "94%" }}></div>
+                  </div>
+                </div>
+
+                {/* Stats Section */}
+                <div className={styles.modalStatsGrid}>
+                  <div className={styles.modalStatBox}>
+                    <span className={styles.modalStatLabel}>PLAYS THIS WEEK</span>
+                    <span className={styles.modalStatVal}>{selectedArtist.plays || 18}</span>
+                  </div>
+                  <div className={styles.modalStatBox}>
+                    <span className={styles.modalStatLabel}>DNA VIBE CATEGORY</span>
+                    <span className={styles.modalStatValPrimary}>SYNTHESIZED CHILL</span>
+                  </div>
+                </div>
+
+                {/* Bio Vibe Profile */}
+                <div className={styles.bioSection}>
+                  <h4 className={styles.bioTitle}>AI Vibe Profile</h4>
+                  <p className={styles.bioText}>
+                    {selectedArtist.description || `This artist forms a key pillar of your musical footprint. Your listening patterns indicate a strong preference for their rhythmic structures during late-evening wind-downs, generating high focus coherence in your brain wave simulations.`}
+                  </p>
+                </div>
+
+                {/* Signature track */}
+                <div className={styles.signatureTrackSection}>
+                  <span className={styles.signatureLabel}>SIGNATURE DNA TRACK</span>
+                  <div className={styles.signatureTrackBox}>
+                    <span className={styles.sigTrackName}>{selectedArtist.signatureTrack || "Midnight City"}</span>
+                    <span className={styles.sigTrackVibe}>Synthesized Vibe</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Action Buttons */}
+              <div className={styles.modalFooter}>
+                <a 
+                  href={selectedArtist.external_urls?.spotify || "#"}
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className={styles.modalSpotifyBtn}
+                >
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style={{ marginRight: '6px' }}>
+                    <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424c-.18.295-.565.387-.86.207-2.377-1.454-5.37-1.783-8.893-.982-.336.075-.668-.135-.744-.47-.077-.337.135-.668.47-.743 3.856-.88 7.15-.502 9.822 1.13.295.18.387.563.205.858zm1.225-2.72c-.228.368-.713.49-1.08.262-2.72-1.67-6.87-2.153-10.076-1.18-.413.125-.85-.107-.973-.52-.125-.413.107-.85.52-.972 3.667-1.11 8.23-.574 11.347 1.34.37.227.492.712.262 1.08zm.106-2.833C14.492 8.878 8.843 8.69 5.568 9.684c-.504.153-1.033-.133-1.186-.637-.153-.504.133-1.033.637-1.186 3.756-1.14 10.02-.924 14.07 1.48.455.27.604.856.334 1.312-.27.455-.857.605-1.313.334z"/>
+                  </svg>
+                  Open on Spotify
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <SpotifyLoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
     </div>
   );
 }
