@@ -1,29 +1,186 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useSession } from 'next-auth/react';
 import { Send } from '@/components/Icons';
 import styles from '@/styles/Studio.module.css';
 
 export default function AIStudioPage() {
-  const [activeMood, setActiveMood] = useState("Focus");
-  
-  // Dummy Data
+  const { data: session } = useSession();
+  const [activeMood, setActiveMood] = useState("");
+  const [prompt, setPrompt] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState(""); // "", "success", "error"
+  const [libraryOnly, setLibraryOnly] = useState(false);
+
+  // Chat History
+  const [chatHistory, setChatHistory] = useState([
+    {
+      sender: 'ai',
+      text: "Welcome to MusicDNA's AI Studio! Describe a vibe, a specific moment, or select a vibe pill above to generate a custom playlist."
+    }
+  ]);
+
+  // Generated Playlist State
+  const [generatedTracks, setGeneratedTracks] = useState([]);
+  const [playlistTitle, setPlaylistTitle] = useState("");
+  const [recentTags, setRecentTags] = useState(["Workout Flow", "Deep Focus", "Sunday Chill"]);
+
+  const chatEndRef = useRef(null);
+
+  // Auto scroll chat to bottom when history changes
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatHistory]);
+
   const moodPills = ["Focus", "Heartbreak", "Hype", "Road Trip", "Sleep", "Party"];
 
-  const generatedTracks = [
-    { name: "Nightcall", artist: "Kavinsky", badge: "synth mood", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBDUu_bhZX6ESQk6uN5Pzik6Fcz6mBndLi0inkW5wrLpjTMHY1_gpjGlEkNTmPeuThPSCY4N9J_ZRYxk56-drwk7VAbIxGJe80mLlV6elfqOf9VemdHQdl1p6TR-fCoe3UDeT2eFm3bugD6swOcVrjAb9Opv5Sstdg12RdvFpzc1K70JgudgJxP0vir2kg3acv5c7vkA09HzDKJJaE-syvrnLtJdb2C-SU2CvzAsSmYwzEUow73Ipw0Yj7xI5DPNrb2BI5Wvs7FCFDI" },
-    { name: "A Real Hero", artist: "College, Electric Youth", badge: "tempo match", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCq8Wk_B2DTRCwlnuS7-cljy-j1jNxbTiEDBFXl9-8O7bO9kCbELqRGE8EWLlQX-CFkzkJEUbuS8Zg0f_atXel5b_KsdfMMTKeR3lnK9Ivfi9RYbRqocRdsFzvasysMzomjEWiIVlvdQ78R7cWqvnb5APj6O67lyL6xo8ir-GMnt-jlcr1iVWnb4nu_vGp5bTdS9wisH9aiUUwRw1AUJW_2uqkEqLRy4eD9gylD6rQFpr3df0ddrDlYf-eN8B2gux1oBDbkcLxJxBXq" },
-    { name: "Resonance", artist: "HOME", badge: "vibe check", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuC6drVs8M5dNcyoo7_8OxHyqh-Xe8sYI6C4V0Zzcv90EBZgEBLNS8BPnj1TAbPuPBBBp4fB0giFQzWv0n4h1j81IHj3WcL8lsXkb1XhqRLdwO5VDDHtZ4wSoJHVZzTbJAJDdm7DaIUtKGW-a7oY4cRFQEE4btflGBvpOfjqpVwNKWQfvNERJSQOIdtAgbi9zqwPo5X284j_3I-oUz_mB7J5cFLmzNqZEHU0Ut__a6IiGelaYWBb0RNZEzGX2mcpvCBij38ZNUbjS8fz" },
-    { name: "Under Your Spell", artist: "Desire", badge: "classic", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBZ1HjQj1jFryzgCO0j_ENE3RTMG354PJlmjKpjHJ_vL_r4Siig3dc5hdI9WK3yf1LV6wLjw3TprISu_sYlcbgqO4P5TC0JkFj5jfZ-_VCgYXZpGckTvqnvsYP3Hkd19dPjwpo8UpJBe5ETYu9-ngcX_Q1xNxVCYrOZBTdvD8JKpcxH66VeJ-kYvbFt-7xRuTiNGi5undB_BdfzbAKNvIvm_PkiYVHr3IXDC6KRbHFLKK1BardEh7QBufE0UCevLkXYhb1ZrD4Sr9c7" },
-    { name: "Tick of the Clock", artist: "Chromatics", badge: "driving", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCYZ7rJXS1MG8rohs7CpuQ4NOurFNCyv4dptvbYg6kSGgsI3PzHVBIHfnpT9G4sWSsRHmZf_NmZIGGFQe6gdG7rwgkX4JR6_iD28FoMtM_cehNiKNw_yOnddoqKJCsDW2DP4eQ2hpIRpnYao1oRFTFrCwEU1rMtJ843QFWPnnF6j9fXDmur0qMzlGB7s9-fgZsHvsG8gcOH9d9ZTnYYQj3-J-B6FYVhRvbvet2X6joY6pmtNotx2gU-QIl-sSiciTiZC1CnCljhviWA" },
-    { name: "Midnight City", artist: "M83", badge: "popular", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBZTICSL5Tf1g14nV20lKRyyAtk1SzC59V78jH86ZY18-25qJBppMOuF96VSWe8w3aKlqRP0eSAI8zWqhem3kup6MUaudW2h7UftUCwCG-EkzpO-mD-_QLeUAi9cwyxqrLB1u1zvm0oYbusAPHB5bQoKZGfhR8BQtm1IyRVjUJSvKvKhyBkLNw_YTjYsoqHrFUnRdSk385PiUQH3IMPd_Mro5-MKmsyvZWbNBOlZq8OwCVjyqxPu5PDQ_TIa5TBXLdcAWbv0HbdKTwJ" },
-    { name: "After Dark", artist: "Mr. Kitty", badge: "mood", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCmUTR3zbSnTY9f2qxM5S0QuT5RGk5SHCT5jtmimpkMBfIUNA8tROp8yP0E10nVqI_mXYn1q8EHGaZiQUjkYWiTDNNdDkZpAfVor73qshbYBqfsk-VQfXzBF68dPzIU8WXVaK9NO5Uqd_xdlGb9vl5PMfvyqOds7Rtsj1hBfRd9V6BrXeU_mMfhqbcE5kDqwBwwnf54Lgqd7hnp8sk7hngic5En5M7DZExy2zYJ_7jCcEvAXHv4hJBtEXf-UBIJ839X4bnZPGApK3zm" },
-    { name: "Starboy", artist: "The Weeknd, Daft Punk", badge: "discovery", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuD6UFlcSyOEze2R7fxeIMKRzLa1laL1kKyKMgY2cbMzKNuRXZjs3d-uShfsy00oCtDivmbMyIbl4qkjQbuEoA59JnSs0VRdNrlmWG6HV3EiZFH5BzzgF49Zs0V4Ms2tQ2tbh2lYPjqFqNAawNl7SHzRshQQcvIfpXPZarybfmCpqOfp9ccZuAfd5KJpgVAh72pmBtRrz-d2dkpYMOVjfGlhkD8Pc9JpAHBW2Ju806WNHhFeoYvXpJbLT63RtaBNzEK2EWQ9ZrWWpQMM" },
-    { name: "Odd Look", artist: "Kavinsky, The Weeknd", badge: "similar", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBDUu_bhZX6ESQk6uN5Pzik6Fcz6mBndLi0inkW5wrLpjTMHY1_gpjGlEkNTmPeuThPSCY4N9J_ZRYxk56-drwk7VAbIxGJe80mLlV6elfqOf9VemdHQdl1p6TR-fCoe3UDeT2eFm3bugD6swOcVrjAb9Opv5Sstdg12RdvFpzc1K70JgudgJxP0vir2kg3acv5c7vkA09HzDKJJaE-syvrnLtJdb2C-SU2CvzAsSmYwzEUow73Ipw0Yj7xI5DPNrb2BI5Wvs7FCFDI" },
-    { name: "Dust", artist: "M-O-O-N", badge: "driving", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuC6drVs8M5dNcyoo7_8OxHyqh-Xe8sYI6C4V0Zzcv90EBZgEBLNS8BPnj1TAbPuPBBBp4fB0giFQzWv0n4h1j81IHj3WcL8lsXkb1XhqRLdwO5VDDHtZ4wSoJHVZzTbJAJDdm7DaIUtKGW-a7oY4cRFQEE4btflGBvpOfjqpVwNKWQfvNERJSQOIdtAgbi9zqwPo5X284j_3I-oUz_mB7J5cFLmzNqZEHU0Ut__a6IiGelaYWBb0RNZEzGX2mcpvCBij38ZNUbjS8fz" }
-  ];
+  const handleMoodPillClick = async (mood) => {
+    setActiveMood(mood);
+    const moodPrompts = {
+      Focus: "Lofi and chill instrumental music for deep focus and study.",
+      Heartbreak: "Melancholic, sad indie and pop songs about heartbreak and longing.",
+      Hype: "High energy hip-hop, rap, and electronic music to get hyped up.",
+      "Road Trip": "Uplifting indie rock and synthwave classics perfect for driving down an open road.",
+      Sleep: "Ambient, soothing, soft music with slow tempos to help drift off to sleep.",
+      Party: "Uplifting dance pop and club beats to keep the party vibe alive."
+    };
+    const correspondingPrompt = moodPrompts[mood] || `${mood} vibe playlist.`;
+    await generatePlaylist(correspondingPrompt, mood);
+  };
 
-  const recentTags = ["Workout Flow", "Deep Focus", "Sunday Chill"];
+  const generatePlaylist = async (userPrompt, moodContext = "") => {
+    if (!userPrompt.trim()) return;
+    if (loading) return;
+
+    setLoading(true);
+    setPrompt("");
+    setSaveStatus("");
+
+    // Add user message to chat
+    setChatHistory((prev) => [...prev, { sender: 'user', text: userPrompt }]);
+
+    try {
+      const response = await fetch('/api/studio', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': session?.accessToken ? `Bearer ${session.accessToken}` : ''
+        },
+        body: JSON.stringify({
+          prompt: userPrompt + (libraryOnly ? " (prioritize extremely famous and popular tracks)" : ""),
+          mood: moodContext
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to generate recommendations");
+      }
+
+      const data = await response.json();
+      
+      if (data.tracks && data.tracks.length > 0) {
+        setGeneratedTracks(data.tracks);
+        setPlaylistTitle(data.playlistName || userPrompt);
+        
+        // Add AI success bubble
+        setChatHistory((prev) => [
+          ...prev,
+          { 
+            sender: 'ai', 
+            text: `I've custom-designed a playlist for you: "${data.playlistName || userPrompt}". Review the tracks in the panel on the right!` 
+          }
+        ]);
+
+        // Add to recent tags
+        const shortTag = userPrompt.length > 20 ? `${userPrompt.substring(0, 17)}...` : userPrompt;
+        setRecentTags((prev) => {
+          if (prev.includes(shortTag)) return prev;
+          return [shortTag, ...prev.slice(0, 2)];
+        });
+      } else {
+        throw new Error("No tracks returned");
+      }
+    } catch (err) {
+      console.error(err);
+      setChatHistory((prev) => [
+        ...prev,
+        { sender: 'ai', text: "Sorry, I ran into an error generating that playlist. Please make sure your Spotify login is active and try again!" }
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSend = () => {
+    if (!prompt.trim()) return;
+    generatePlaylist(prompt);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSend();
+    }
+  };
+
+  const saveToSpotify = async () => {
+    if (!session?.accessToken) {
+      setSaveStatus("error");
+      alert("Please log in with Spotify first!");
+      return;
+    }
+    if (generatedTracks.length === 0) return;
+
+    setSaving(true);
+    setSaveStatus("");
+
+    try {
+      // 1. Create the playlist directly for the authenticated user (2026 Endpoint)
+      const createPlaylistRes = await fetch('https://api.spotify.com/v1/me/playlists', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: `MusicDNA: ${playlistTitle}`,
+          description: `AI-generated playlist by MusicDNA based on your mood: "${playlistTitle}"`,
+          public: false
+        })
+      });
+
+      if (!createPlaylistRes.ok) throw new Error("Failed to create Spotify playlist");
+      const playlist = await createPlaylistRes.json();
+
+      // 2. Filter tracks that have valid Spotify URIs and add them (2026 Endpoint)
+      const uris = generatedTracks.filter(t => t.uri).map(t => t.uri);
+      
+      if (uris.length > 0) {
+        const addTracksRes = await fetch(`https://api.spotify.com/v1/playlists/${playlist.id}/items`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ uris })
+        });
+        if (!addTracksRes.ok) throw new Error("Failed to add tracks to playlist");
+      }
+
+      setSaveStatus("success");
+      setChatHistory((prev) => [
+        ...prev,
+        { sender: 'ai', text: `Success! I've saved "${playlist.name}" to your Spotify account. Go check your Spotify app!` }
+      ]);
+    } catch (err) {
+      console.error(err);
+      setSaveStatus("error");
+      alert("Failed to save playlist to Spotify. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className={styles.pageContainer}>
@@ -31,7 +188,7 @@ export default function AIStudioPage() {
       {/* Header */}
       <header className={styles.header}>
         <h1 className={styles.pageTitle}>AI Studio</h1>
-        <p className={styles.pageSubtitle}>Describe a moment. Get a playlist.</p>
+        <p className={styles.pageSubtitle}>Describe a moment. Get a custom Spotify playlist.</p>
       </header>
 
       {/* 2 Column Split */}
@@ -46,7 +203,7 @@ export default function AIStudioPage() {
               <button 
                 key={idx} 
                 className={`${styles.pill} ${pill === activeMood ? styles.pillActive : styles.pillInactive}`}
-                onClick={() => setActiveMood(pill)}
+                onClick={() => handleMoodPillClick(pill)}
               >
                 {pill}
               </button>
@@ -55,24 +212,20 @@ export default function AIStudioPage() {
 
           {/* Chat Area */}
           <div className={styles.chatArea}>
-            <div className={styles.bubbleUser}>
-              Something for a rainy midnight drive through the city.
-            </div>
-            <div className={styles.bubbleAi}>
-              I've curated a selection of atmospheric electronic and synthwave tracks with a melancholic edge. Perfect for urban rain.
-            </div>
-            <div className={styles.bubbleUser}>
-              Can we make it a bit more upbeat? Not too energetic, but something to keep me awake.
-            </div>
-            <div className={styles.bubbleAi}>
-              Absolutely. I've swapped in some driving synthwave with stronger basslines and a slightly faster tempo. It maintains the midnight atmosphere but adds more momentum.
-            </div>
-            <div className={styles.bubbleUser}>
-              Perfect, that's exactly what I needed. Add some Kavinsky if you haven't already.
-            </div>
-            <div className={styles.bubbleAi}>
-              I've added "Nightcall" and "Odd Look" by Kavinsky to the top of your queue.
-            </div>
+            {chatHistory.map((chat, idx) => (
+              <div 
+                key={idx} 
+                className={chat.sender === 'user' ? styles.bubbleUser : styles.bubbleAi}
+              >
+                {chat.text}
+              </div>
+            ))}
+            {loading && (
+              <div className={styles.bubbleAi} style={{ fontStyle: 'italic', color: '#1ed760' }}>
+                Curating your custom soundtrack...
+              </div>
+            )}
+            <div ref={chatEndRef} />
           </div>
 
           {/* Input Area */}
@@ -80,19 +233,27 @@ export default function AIStudioPage() {
             <div className={styles.inputRow}>
               <input 
                 type="text" 
-                placeholder="Type a mood or moment..." 
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={loading ? "Generating playlist..." : "Type a mood or moment..."} 
+                disabled={loading}
                 className={styles.chatInput} 
               />
-              <button className={styles.sendBtn}>
+              <button onClick={handleSend} disabled={loading || !prompt.trim()} className={styles.sendBtn}>
                 <Send size={18} color="#000" />
               </button>
             </div>
             <div className={styles.toggleRow}>
               <label className={styles.switch}>
-                <input type="checkbox" />
+                <input 
+                  type="checkbox" 
+                  checked={libraryOnly}
+                  onChange={(e) => setLibraryOnly(e.target.checked)}
+                />
                 <span className={styles.slider}></span>
               </label>
-              <span className={styles.toggleLabel}>From Your Library Only</span>
+              <span className={styles.toggleLabel}>Prioritize Famous Hits</span>
             </div>
           </div>
 
@@ -105,35 +266,72 @@ export default function AIStudioPage() {
             {/* Header */}
             <div className={styles.plHeader}>
               <h2 className={styles.plTitle}>Generated Playlist</h2>
-              <p className={styles.plSubtitle}>sad midnight driving</p>
+              <p className={styles.plSubtitle}>{playlistTitle || "Waiting for your input..."}</p>
             </div>
 
             {/* Track List */}
             <div className={styles.trackList}>
-              {generatedTracks.map((track, idx) => (
-                <div key={idx} className={`${styles.trackRow} ${idx % 2 === 0 ? styles.bgLevel1 : styles.bgLevel2}`}>
-                  <span className={styles.trackNum}>{idx + 1}</span>
-                  <img src={track.img} alt="Album Art" className={styles.trackImg} />
-                  <div className={styles.trackInfo}>
-                    <div className={styles.trackName}>{track.name}</div>
-                    <div className={styles.trackArtist}>{track.artist}</div>
-                  </div>
-                  <div className={styles.trackBadge}>{track.badge}</div>
+              {loading ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {[...Array(8)].map((_, idx) => (
+                    <div key={idx} className={`${styles.trackRow} ${idx % 2 === 0 ? styles.bgLevel1 : styles.bgLevel2}`} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px' }}>
+                      <span className={styles.trackNum} style={{ width: '20px', display: 'inline-block' }}>{idx + 1}</span>
+                      <div className="skeleton" style={{ width: '40px', height: '40px', borderRadius: '4px', flexShrink: 0 }} />
+                      <div className={styles.trackInfo} style={{ display: 'flex', flexDirection: 'column', gap: '6px', flex: 1 }}>
+                        <div className="skeleton" style={{ width: '120px', height: '14px' }} />
+                        <div className="skeleton" style={{ width: '80px', height: '10px' }} />
+                      </div>
+                      <div className="skeleton" style={{ width: '60px', height: '18px', borderRadius: '9999px' }} />
+                    </div>
+                  ))}
                 </div>
-              ))}
+              ) : generatedTracks.length > 0 ? (
+                generatedTracks.map((track, idx) => (
+                  <a 
+                    key={idx} 
+                    href={track.uri ? `https://open.spotify.com/track/${track.uri.replace('spotify:track:', '')}` : '#'} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className={`${styles.trackRow} ${idx % 2 === 0 ? styles.bgLevel1 : styles.bgLevel2}`}
+                    style={{ textDecoration: 'none', cursor: track.uri ? 'pointer' : 'default' }}
+                  >
+                    <span className={styles.trackNum}>{idx + 1}</span>
+                    <img src={track.img} alt="Album Art" className={styles.trackImg} />
+                    <div className={styles.trackInfo}>
+                      <div className={styles.trackName}>{track.name}</div>
+                      <div className={styles.trackArtist}>{track.artist}</div>
+                    </div>
+                    <div className={styles.trackBadge}>{track.badge}</div>
+                  </a>
+                ))
+              ) : (
+                <div style={{ textAlign: 'center', color: '#666', padding: '40px 10px', fontSize: '13px' }}>
+                  Your generated tracks will appear here. Describe a moment in the chat to begin.
+                </div>
+              )}
             </div>
 
             {/* Save Button */}
-            <button className={styles.saveBtn}>
-              Save to Spotify
-            </button>
+            {generatedTracks.length > 0 && (
+              <button 
+                onClick={saveToSpotify} 
+                disabled={saving || generatedTracks.length === 0}
+                className={styles.saveBtn}
+                style={{
+                  backgroundColor: saveStatus === 'success' ? '#1ed760' : undefined,
+                  color: saveStatus === 'success' ? '#fff' : undefined,
+                }}
+              >
+                {saving ? "Saving to Spotify..." : saveStatus === 'success' ? "✓ Saved to Spotify" : "Save to Spotify"}
+              </button>
+            )}
           </div>
 
           {/* Recent Tags */}
           <div className={styles.recentTags}>
             <span className={styles.recentLabel}>Recent:</span>
             {recentTags.map((tag, idx) => (
-              <span key={idx} className={styles.recentTag}>{tag}</span>
+              <span key={idx} onClick={() => generatePlaylist(tag)} className={styles.recentTag}>{tag}</span>
             ))}
           </div>
 

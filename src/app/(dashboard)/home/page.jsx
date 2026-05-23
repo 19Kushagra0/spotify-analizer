@@ -227,11 +227,62 @@ export default function HomePage() {
     }
   }, [session]);
 
-  // Show a loading state until Spotify replies
+  // Show a gorgeous shimmer skeleton state until Spotify replies
   if (status === "loading" || (!topTrack && !error)) {
     return (
-      <div className={styles.pageContainer} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '300px' }}>
-        Loading your Spotify DNA...
+      <div className={styles.pageContainer}>
+        {/* Row 1: Top Track Card Skeleton */}
+        <div className={`${styles.card} ${styles.nowPlaying}`} style={{ gap: '20px' }}>
+          <div className="skeleton" style={{ width: '120px', height: '120px', borderRadius: '8px', flexShrink: 0 }} />
+          <div className={styles.trackInfo} style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div className="skeleton" style={{ width: '200px', height: '24px' }} />
+              <div className="skeleton" style={{ width: '120px', height: '16px' }} />
+            </div>
+            <div className="skeleton" style={{ width: '100%', height: '8px', borderRadius: '4px' }} />
+            <div className="skeleton" style={{ width: '320px', height: '14px' }} />
+          </div>
+        </div>
+
+        {/* Row 2: Stats Cards Skeletons */}
+        <div className={styles.statsGrid}>
+          {[1, 2, 3].map((i) => (
+            <div key={i} className={`${styles.card} ${styles.cardLg} ${styles.statCard}`} style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '24px' }}>
+              <div className="skeleton" style={{ width: '80px', height: '12px' }} />
+              <div className="skeleton" style={{ width: '140px', height: '32px' }} />
+            </div>
+          ))}
+        </div>
+
+        {/* Row 3: Bottom Grid Skeletons */}
+        <div className={styles.bottomGrid}>
+          {/* Left: Spotlight Card Skeleton */}
+          <div className={`${styles.card} ${styles.cardLg}`} style={{ display: 'flex', flexDirection: 'column', gap: '16px', minHeight: '220px' }}>
+            <div className="skeleton" style={{ width: '120px', height: '12px' }} />
+            <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+              <div className="skeleton" style={{ width: '70px', height: '70px', borderRadius: '6px' }} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
+                <div className="skeleton" style={{ width: '150px', height: '18px' }} />
+                <div className="skeleton" style={{ width: '100px', height: '14px' }} />
+              </div>
+            </div>
+            <div className="skeleton" style={{ width: '100%', height: '14px' }} />
+            <div className="skeleton" style={{ width: '80%', height: '14px' }} />
+          </div>
+
+          {/* Right: Week in Music Chart Skeleton */}
+          <div className={`${styles.card} ${styles.cardLg}`} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div className="skeleton" style={{ width: '160px', height: '16px' }} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', height: '120px', paddingTop: '10px' }}>
+              {[60, 80, 40, 95, 70, 50, 30].map((h, index) => (
+                <div key={index} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', flex: 1 }}>
+                  <div className="skeleton" style={{ width: '24px', height: `${h}px`, borderRadius: '4px 4px 0 0' }} />
+                  <div className="skeleton" style={{ width: '20px', height: '10px' }} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

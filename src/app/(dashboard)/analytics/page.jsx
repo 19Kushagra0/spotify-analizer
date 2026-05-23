@@ -162,8 +162,12 @@ export default function AnalyticsPage() {
           <div className={styles.radarWrapper}>
             <div className={styles.radarContainer}>
               {isLoadingRadar ? (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: '250px', color: '#b3b3b3', fontSize: '14px' }}>
-                  Loading music DNA...
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: '250px', position: 'relative' }}>
+                  <div className="skeleton" style={{ width: '180px', height: '180px', borderRadius: '50%', border: '4px solid rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div className="skeleton" style={{ width: '120px', height: '120px', borderRadius: '50%', border: '4px solid rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div className="skeleton" style={{ width: '60px', height: '60px', borderRadius: '50%', border: '4px solid rgba(255,255,255,0.03)' }} />
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <ResponsiveContainer width="100%" aspect={1.2}>
@@ -222,7 +226,19 @@ export default function AnalyticsPage() {
           <h2 className={styles.sectionTitle}>Top Tracks</h2>
           <div className={styles.trackList}>
             {isLoadingTracks ? (
-              <div style={{ color: '#b3b3b3', padding: '20px 0', fontSize: '14px', textAlign: 'center' }}>Loading top tracks...</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {[...Array(10)].map((_, i) => (
+                  <div key={i} className={`${styles.trackRow} ${i % 2 === 0 ? styles.rowEven : styles.rowOdd}`} style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '8px' }}>
+                    <div className="skeleton" style={{ width: '20px', height: '14px' }} />
+                    <div className="skeleton" style={{ width: '40px', height: '40px', borderRadius: '4px', flexShrink: 0 }} />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flex: 1 }}>
+                      <div className="skeleton" style={{ width: '160px', height: '14px' }} />
+                      <div className="skeleton" style={{ width: '100px', height: '10px' }} />
+                    </div>
+                    <div className="skeleton" style={{ width: '80px', height: '10px' }} />
+                  </div>
+                ))}
+              </div>
             ) : (realTopTracks || topTracks).length === 0 ? (
               <div style={{ color: '#b3b3b3', padding: '40px 0', fontSize: '14px', width: '100%', textAlign: 'center', fontStyle: 'italic' }}>
                 Spend more time on Spotify to get top tracks.
@@ -260,7 +276,15 @@ export default function AnalyticsPage() {
         <h2 className={styles.sectionTitle}>Top Artists</h2>
         <div className={styles.artistsScroll}>
           {isLoadingArtists ? (
-            <div style={{ color: '#b3b3b3', padding: '20px 0', fontSize: '14px', width: '100%', textAlign: 'center' }}>Loading top artists...</div>
+            <div style={{ display: 'flex', gap: '16px', width: '100%', overflow: 'hidden' }}>
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className={styles.artistCard} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', minWidth: '120px' }}>
+                  <div className="skeleton" style={{ width: '100px', height: '100px', borderRadius: '50%' }} />
+                  <div className="skeleton" style={{ width: '80px', height: '12px' }} />
+                  <div className="skeleton" style={{ width: '60px', height: '10px' }} />
+                </div>
+              ))}
+            </div>
           ) : (realTopArtists || topArtists).length === 0 ? (
             <div style={{ color: '#b3b3b3', padding: '40px 0', fontSize: '14px', width: '100%', textAlign: 'center', fontStyle: 'italic' }}>
               Spend more time on Spotify to get top artists.
@@ -287,8 +311,10 @@ export default function AnalyticsPage() {
         <h2 className={styles.sectionTitle}>When You Listen Most</h2>
         <div style={{ width: '100%', height: '160px', marginBottom: '16px', position: 'relative' }}>
           {isLoadingListening ? (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '150px', color: '#b3b3b3', fontSize: '14px', width: '100%' }}>
-              Analyzing listening patterns...
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', height: '150px', width: '100%', padding: '0 20px' }}>
+              {[40, 20, 15, 30, 45, 60, 80, 100, 90, 75, 60, 40, 50, 60, 70, 95, 80, 65, 50, 40, 30, 20, 15, 10].map((h, i) => (
+                <div key={i} className="skeleton" style={{ width: '3%', height: `${h}%`, borderRadius: '4px 4px 0 0' }} />
+              ))}
             </div>
           ) : (
             <ResponsiveContainer width="100%" height={150}>

@@ -83,3 +83,22 @@ svg *:focus-visible {
 .chart-day-label:hover circle {
   fill: rgba(255, 255, 255, 0.08);
 }
+
+/* Skeleton Loading Shimmer Effect */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #1c1c1c 25%, #282828 50%, #1c1c1c 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite linear;
+  border-radius: 6px;
+  display: inline-block;
+  vertical-align: middle;
+}
