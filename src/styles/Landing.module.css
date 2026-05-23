@@ -185,6 +185,11 @@
   opacity: 0.8;
 }
 
+.radarSvg polygon,
+.radarSvg circle {
+  transition: all 2.4s ease-in-out;
+}
+
 .radarLabelTop {
   position: absolute;
   top: 0;
@@ -292,5 +297,36 @@
 }
 
 .playIcon:hover {
+  color: var(--primary-container);
+}
+
+.radarTooltip {
+  position: absolute;
+  background-color: #161616;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  padding: 6px 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7);
+  pointer-events: none;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 95px;
+  font-family: inherit;
+  transition: left 0.15s ease-out, top 0.15s ease-out;
+}
+
+.tooltipTitle {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-base);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tooltipValue {
+  font-size: 10px;
+  font-weight: 400;
   color: var(--primary-container);
 }
